@@ -357,7 +357,7 @@ body.inter .stdonly{display:none!important}
         <li>Protocollo valutato: <b>Di cosa ha bisogno → Comune → Via → Civico → Scala → Piano → Citofono → Nome e cognome</b>. L'esito mostra l'ordine in cui hai chiesto, le domande fuori ordine e quelle non fatte.</li>
         <li>Domande con i tasti: <b>Alt+1</b> di cosa ha bisogno · <b>Alt+2</b> comune · <b>Alt+3</b> via · <b>Alt+4</b> civico · <b>Alt+5</b> scala · <b>Alt+6</b> piano · <b>Alt+7</b> citofono/interno · <b>Alt+8</b> nome e cognome · <b>Alt+9</b> come si scrive · <b>Alt+0</b> può ripetere · <b>Alt+R</b> punto di riferimento · <b>Alt+T</b> telefono · <b>Alt+E</b> allerto ente. Oppure i pulsanti sotto i PSAP.</li>
         <li><b>Fine chiamata</b>: quando dici <b>"allerto ente"</b> (o premi Alt+E) il cronometro si ferma, il chiamante saluta e compare la finestra con la durata. Poi completi la scheda, premi INVIA e Salva ed esci. Se non lo dici, il tempo si ferma all'INVIA.</li>
-        <li><b>A voce</b>: attiva "Domande a voce" e usa le <b>cuffie</b> (con le casse il microfono sente il chiamante). Il riconoscimento capisce le parole chiave (comune, via, civico, scala, piano, citofono, interno, nome, cognome…); se parli mentre il chiamante risponde, lui si interrompe.</li>
+        <li><b>A voce</b>: in Interattivo il microfono si attiva da solo all'apertura (al primo uso consenti il permesso). Usa le <b>cuffie</b> (con le casse il microfono sente il chiamante). Il riconoscimento capisce le parole chiave (comune, via, civico, scala, piano, citofono, interno, nome, cognome…); se parli mentre il chiamante risponde, lui si interrompe.</li>
         <li><b>Microfono:</b> nella pagina pubblicata su claude.ai il browser lo blocca. Usa il file NUE112@HOME.html in Chrome o Edge. Il microfono resta acceso tra una chiamata e l'altra (ascolta solo durante la chiamata), così il permesso si chiede una volta per apertura della pagina. Aperto come file con doppio clic, Chrome non memorizza il permesso e lo richiede ogni volta che riapri la pagina; per non vederlo più aprilo da <b>http://localhost</b> (vedi sotto), dove il permesso resta salvato.</li>
         <li><b>Avvio senza richieste ripetute</b>: metti nella stessa cartella <b>NUE112@HOME.html</b>, <b>Avvia NUE112@HOME.bat</b> e <b>server.ps1</b>. Doppio clic su "Avvia NUE112@HOME.bat": si apre una finestra nera (il piccolo server, lasciala aperta) e Chrome su <b>http://localhost:8112</b>. Al primo uso scegli "Consenti durante la visita al sito": da lì il permesso resta salvato. Chiudendo la finestra nera il server si ferma.</li>
         <li>Se chiedi due volte la stessa cosa, il chiamante alterato si spazientisce. Nel panico a volte sbaglia il civico e si corregge.</li>
@@ -375,22 +375,6 @@ body.inter .stdonly{display:none!important}
 
 <!-- BARRA LATERALE: impostazioni -->
 <aside class="side">
-  <div class="scard"><div class="sh"><i>!</i><b>Turno</b></div>
-    <label class="ck"><input type="checkbox" id="turno"> Turno continuo (chiamate automatiche)</label>
-    <label>Volume squillo</label><input type="range" id="ringVol" min="0.05" max="1" step="0.05" value="0.5">
-    <button class="tbtn" type="button" id="bRingTest" style="margin-top:6px;width:100%">Prova squillo</button>
-  </div>
-  <div class="scard intonly"><div class="sh"><i>!</i><b>Interattivo</b></div>
-    <label class="ck"><input type="checkbox" id="mic"> Domande a voce (microfono, con cuffie)</label>
-    <div style="font-size:11.5px;color:#6f7886;line-height:1.4">Senza microfono usa Alt+1…0 o i pulsanti sotto i PSAP.</div>
-  </div>
-  <div class="scard"><div class="sh"><i>!</i><b>Chiamata</b></div>
-    <label class="stdonly">Modalità (standard)</label>
-    <select id="mode" class="stdonly"><option value="dict">Dettatura campo per campo</option><option value="real">Chiamata realistica</option></select>
-    <label>Scenari</label><select id="cat"></select>
-    <label>Tono chiamante</label>
-    <select id="tone"><option value="normale">Normale</option><option value="affannato">Affannato</option><option value="alterato">Alterato</option><option value="panico">In panico</option><option value="casuale">Casuale</option></select>
-  </div>
   <div class="scard"><div class="sh"><i>!</i><b>Voce</b></div>
     <label>Velocità <span class="val" id="rateVal">1.00×</span></label>
     <input type="range" id="rate" min="0.6" max="2" step="0.05" value="1">
@@ -400,11 +384,23 @@ body.inter .stdonly{display:none!important}
     <button class="tbtn" type="button" id="bTest" style="margin-top:8px;width:100%">Prova voce</button>
     <div id="ttsDiag" style="font-size:11.5px;color:#6f7886;margin-top:6px;line-height:1.4"></div>
   </div>
+  <div class="scard"><div class="sh"><i>!</i><b>Chiamata</b></div>
+    <label class="stdonly">Modalità (standard)</label>
+    <select id="mode" class="stdonly"><option value="dict">Dettatura campo per campo</option><option value="real">Chiamata realistica</option></select>
+    <label>Scenari</label><select id="cat"></select>
+    <label>Tono chiamante</label>
+    <select id="tone"><option value="normale">Normale</option><option value="affannato">Affannato</option><option value="alterato">Alterato</option><option value="panico">In panico</option><option value="casuale">Casuale</option></select>
+  </div>
   <div class="scard"><div class="sh"><i>!</i><b>Opzioni</b></div>
     <label class="ck"><input type="checkbox" id="spell"> Spelling del cognome</label>
     <label class="ck"><input type="checkbox" id="psapOn"> Valuta PSAP (indicativo)</label>
     <label class="ck"><input type="checkbox" id="showText"> Mostra testo durante la chiamata</label>
     <div class="sig">- NUE112@HOME</div>
+  </div>
+  <div class="scard"><div class="sh"><i>!</i><b>Turno</b></div>
+    <label class="ck"><input type="checkbox" id="turno"> Turno continuo (chiamate automatiche)</label>
+    <label>Volume squillo</label><input type="range" id="ringVol" min="0.05" max="1" step="0.05" value="0.5">
+    <button class="tbtn" type="button" id="bRingTest" style="margin-top:6px;width:100%">Prova squillo</button>
   </div>
 </aside>
 </div>
@@ -700,7 +696,8 @@ function loadVoices(){
 const curVoice=()=>voices.find(v=>v.name===$('#voice').value)||null;
 
 /* ---------------- STATO ---------------- */
-let settings=Object.assign({sim:'std',mode:'dict',rate:1,gap:600,voice:'',spell:false,psapOn:false,showText:false,cat:'',tone:'normale',mic:false,turno:false,ringVol:.5},store.get('s112_settings2',{}));
+let settings=Object.assign({sim:'int',mode:'dict',rate:1,gap:600,voice:'',spell:false,psapOn:false,showText:false,cat:'',tone:'normale',turno:false,ringVol:.5},store.get('s112_settings2',{}));
+settings.sim='int';settings.mic=true; // all'apertura: modalità interattiva con domande a voce
 /* phase: idle | ringing | answered (F9) | open (F10) | done */
 let S={phase:'idle',sc:null,cur:null,idx:0,playing:false,paused:false,t0:0,tRing:0,tRep:null,tEnd:null,tLoc:null,tick:null,rep:0,done:true,gapT:null,utt:null,lastHeard:0,
   inter:false,dlg:[],qlog:[],lastAns:null,asked:{},inoltro:false,nextT:null,promptT:null};
@@ -709,12 +706,12 @@ const isActive=()=>S.phase==='answered'||S.phase==='open';
 function applySettings(){
   $('#mode').value=settings.mode;$('#rate').value=settings.rate;$('#gap').value=settings.gap;
   $('#cat').value=settings.cat||'';$('#tone').value=settings.tone||'normale';$('#spell').checked=settings.spell;$('#psapOn').checked=settings.psapOn;$('#showText').checked=settings.showText;
-  $('#mic').checked=settings.mic;$('#turno').checked=settings.turno;$('#ringVol').value=settings.ringVol;
+  $('#turno').checked=settings.turno;$('#ringVol').value=settings.ringVol;
   $('#rateVal').textContent=(+settings.rate).toFixed(2)+'×';$('#gapVal').textContent=(settings.gap/1000).toFixed(1)+' s';
   setSim(settings.sim,true);
 }
 function saveSettings(){
-  settings=Object.assign(settings,{mode:$('#mode').value,rate:+$('#rate').value,gap:+$('#gap').value,voice:$('#voice').value,spell:$('#spell').checked,psapOn:$('#psapOn').checked,showText:$('#showText').checked,cat:$('#cat').value,tone:$('#tone').value,mic:$('#mic').checked,turno:$('#turno').checked,ringVol:+$('#ringVol').value});
+  settings=Object.assign(settings,{mode:$('#mode').value,rate:+$('#rate').value,gap:+$('#gap').value,voice:$('#voice').value,spell:$('#spell').checked,psapOn:$('#psapOn').checked,showText:$('#showText').checked,cat:$('#cat').value,tone:$('#tone').value,mic:true,turno:$('#turno').checked,ringVol:+$('#ringVol').value});
   store.set('s112_settings2',settings);
   $('#rateVal').textContent=settings.rate.toFixed(2)+'×';$('#gapVal').textContent=(settings.gap/1000).toFixed(1)+' s';
   if(!settings.turno)clearTimeout(S.nextT);
@@ -1028,13 +1025,13 @@ const SR=window.SpeechRecognition||window.webkitSpeechRecognition||null;
 let rec=null,recOn=false,micStream=null,micAsking=false;
 function micMsg(t,cls){$('#micState').innerHTML=t;$('#micState').className='micst '+(cls||'');}
 function startMic(){ // un solo riconoscitore che resta acceso tra una chiamata e l'altra
-  if(!settings.mic||settings.sim!=='int'){micMsg(settings.mic?'microfono in pausa (modalità standard)':'microfono spento','');return;}
+  if(!settings.mic||settings.sim!=='int'){micMsg('microfono in pausa (modalità standard)','');return;}
   if(!SR){micMsg('riconoscimento vocale non disponibile: usa Chrome o Edge','err');return;}
   if(rec&&recOn){micMsg(isActive()?'🎙 in ascolto':'🎙 pronto (in attesa di chiamata)','on');return;}
   // tengo aperto un flusso del microfono per tutta la sessione: il permesso si chiede una sola volta
   if(!micStream&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&!micAsking){
     micAsking=true;micMsg('consenti il microfono nel riquadro di Chrome…','');
-    navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}).then(st=>{micStream=st;micAsking=false;startMic();}).catch(err=>{micAsking=false;micMsg('microfono non consentito ('+(err.name||'errore')+'): usa i tasti Alt oppure avvia con "Avvia NUE112@HOME"','err');});
+    navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}).then(st=>{micStream=st;micAsking=false;startMic();}).catch(err=>{micAsking=false;micMsg(err&&err.name==='NotFoundError'?'nessun microfono trovato: collega le cuffie e ricarica la pagina (intanto usa Alt+1…0)':'microfono non consentito: clicca sul lucchetto accanto all\'indirizzo, consenti il microfono e ricarica (intanto usa Alt+1…0)','err');});
     return;
   }
   if(micAsking)return;
@@ -1227,7 +1224,7 @@ $$('nav.btabs button').forEach(b=>b.onclick=()=>openTab(b.dataset.v));
 const clsSel=$('#f_cls');clsSel.innerHTML='<option value=""></option>'+TREE.map(c=>`<option value="${c.id}">${c.c}</option>`).join('');
 $('#cat').innerHTML='<option value="">Tutte le classificazioni</option>'+TREE.filter(g=>g.d.some(d=>d.desc)).map(g=>`<option value="${g.id}">${g.c}</option>`).join('');
 applySettings();
-['#mode','#cat','#tone','#rate','#gap','#voice','#spell','#psapOn','#showText','#mic','#turno','#ringVol'].forEach(s=>$(s).addEventListener('input',saveSettings));
+['#mode','#cat','#tone','#rate','#gap','#voice','#spell','#psapOn','#showText','#turno','#ringVol'].forEach(s=>$(s).addEventListener('input',saveSettings));
 $$('#simSwitch button').forEach(b=>b.onclick=()=>setSim(b.dataset.sim));
 $('#bNew').onclick=incoming;$('#bAnswer').onclick=answer;$('#bReport').onclick=openReport;$('#bTest').onclick=testVoice;$('#bAbort').onclick=abortCall;$('#bPause').onclick=togglePause;$('#bRepLine').onclick=repLine;$('#bRepAll').onclick=repAll;$('#bSave').onclick=save;$('#bInvia').onclick=invia;
 $('#endOk').onclick=()=>{$('#endDlg').classList.remove('on');$('#clsIn').focus();};
@@ -1389,6 +1386,7 @@ $('#f_nota').addEventListener('input',()=>$('#notaCnt').textContent=$('#f_nota')
 if(window.matchMedia&&matchMedia('(hover: none) and (pointer: coarse)').matches)$('#mobileBlock').classList.add('on');
 if(location.protocol==='file:')$('#fileHint').classList.add('on');
 renderPsap();renderQpanel();showCls();locBadge();setFormEnabled(false);
+if(settings.sim==='int')startMic();
 updBtns();setState('pronto · F2 per una chiamata','');
 })();
 </script>
