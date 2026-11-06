@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NUE112@HOME</title>
+<style>
+:root{
+  --red:#e3342b;--tool:#eef0f3;--tooltxt:#5a6478;--navy:#1f3a6b;--navy2:#24406f;--blue:#2a5ca8;--orange:#f1b23b;
+  --chi:#d5e5e8;--chiline:#c2d4d8;--seg:#dcefd6;--segline:#c6dcc0;--seglab:#6b7c6a;--psap:#eceeea;--psapline:#d9dcd6;
+  --work:#e2e5e9;--strip:#2a2a2d;--side:#14294b;--card:#ffffff;--ink:#2b3340;--muted:#6f7886;
+  --ok:#1f8a4c;--okbg:#e5f5ea;--ko:#c0352b;--kobg:#fbe9e7;--warn:#a96a08;--warnbg:#fff3df;--green:#3aa655;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;background:var(--work);color:var(--ink);font-size:14px}
+/* barra rossa */
+.top{background:var(--red);color:#fff;height:46px;display:flex;align-items:center;padding:0 14px;position:relative}
+.top h1{position:absolute;left:50%;transform:translateX(-50%);margin:0;font-size:21px;font-weight:500;white-space:nowrap;letter-spacing:.2px}
+.chips{margin-left:auto;display:flex;gap:10px}
+.chip{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.12);border-radius:999px;padding:3px 12px 3px 3px;font-size:13px}
+.chip i{width:26px;height:26px;border-radius:50%;background:#1d1d1f;display:inline-flex;align-items:center;justify-content:center}
+.chip i svg{width:14px;height:14px;fill:#fff}
+/* barra strumenti */
+.toolbar{background:var(--tool);display:flex;align-items:center;gap:14px;padding:6px 14px;border-bottom:1px solid #d3d7dd;flex-wrap:wrap;min-height:58px}
+.status{display:flex;gap:2px;border-bottom:1px solid #c9ced6}
+.status span{padding:6px 12px 7px;font-size:13px;color:#7b8496;text-transform:uppercase;letter-spacing:.3px;border-bottom:3px solid transparent;margin-bottom:-2px}
+.status span.on{color:#384660;border-bottom-color:var(--green)}
+.tb{display:flex;align-items:center;gap:6px;color:var(--tooltxt);font-size:15px}
+.tb svg{width:16px;height:16px;fill:#4a5468}
+.tmr{display:flex;flex-direction:column;align-items:center;line-height:1.15;font-variant-numeric:tabular-nums}
+.tmr b{color:#d33a32;font-weight:500;font-size:16px;border-bottom:1px dashed #9aa3b2;padding:0 6px}
+.tmr small{color:#5a6478;font-size:13px}
+.tbtns{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tbtn{background:#fff;border:1px solid #d0d5dc;color:#465066;padding:7px 9px;border-radius:3px;font-size:12.5px;cursor:pointer;text-transform:uppercase;letter-spacing:.3px;font-family:inherit}
+.tbtn:hover{background:#f5f6f8}
+.tbtn:disabled{opacity:.4;cursor:not-allowed}
+.tbtn.plain{background:transparent;border-color:transparent;font-size:15px;color:#5a6478}
+.tbtn.save{background:var(--navy);border-color:var(--navy);color:#fff;font-size:15px;font-weight:500;padding:8px 18px}
+.tbtn.save:hover{background:#18305a}
+.tbtn.new{background:var(--blue);border-color:var(--blue);color:#fff}
+.kbd{opacity:.65;font-size:10.5px;margin-left:4px;text-transform:none}
+.btn{background:var(--blue);border:1px solid var(--blue);color:#fff;padding:8px 14px;border-radius:3px;font:inherit;font-size:13px;text-transform:uppercase;letter-spacing:.3px;cursor:pointer;margin-top:12px}
+.state{font-size:11.5px;color:#5a6478;background:#dfe3e9;border-radius:3px;padding:2px 7px}
+.state.play{background:#dbe7fb;color:#1e4b9c}.state.wait{background:var(--warnbg);color:var(--warn)}.state.done{background:var(--okbg);color:var(--ok)}
+/* area di lavoro */
+.layout{display:grid;grid-template-columns:1fr 250px;min-height:calc(100vh - 104px)}
+.work{padding:14px 12px 0 18px;display:flex;flex-direction:column;min-width:0}
+.panels{display:grid;grid-template-columns:.68fr 1.75fr .62fr;gap:12px;align-items:start}
+@media(max-width:1180px){.layout{grid-template-columns:1fr}.panels{grid-template-columns:1fr}.top h1{position:static;transform:none;font-size:16px}.chips{display:none}}
+/* chiamante */
+.ptabs{display:flex;gap:4px;margin-bottom:-1px}
+.ptabs span{padding:9px 18px 8px;font-size:13px;letter-spacing:.4px;background:#e6e9ed;color:#8c94a2;border-radius:3px 3px 0 0;text-transform:uppercase}
+.ptabs span.on{background:var(--navy2);color:#fff;font-weight:600}
+.chi{background:var(--chi);border-radius:0 3px 3px 3px;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.frow{display:grid;grid-template-columns:118px 1fr 22px;align-items:center;border-bottom:1px solid var(--chiline);min-height:42px;padding:0 8px 0 10px}
+.frow>label{color:#6e7f86;font-size:14px}
+.frow input,.frow textarea{width:100%;border:0;background:transparent;font:inherit;font-size:15.5px;color:#33404d;text-transform:uppercase;padding:8px 4px;outline:none}
+.frow input:focus,.frow textarea:focus{background:rgba(255,255,255,.55);box-shadow:inset 0 -2px 0 var(--blue)}
+.frow .x{color:#7d8a90;cursor:pointer;text-align:center;font-size:16px;user-select:none}
+.frow .x:hover{color:#c0352b}
+.nota{padding:8px 10px 10px}
+.nota .h{display:flex;justify-content:space-between;color:#6e7f86}
+.nota textarea{width:100%;height:70px;margin-top:6px;border:1px solid var(--chiline);background:rgba(255,255,255,.35);resize:none;font:inherit;text-transform:none;padding:6px}
+/* segnalazione */
+.seg{box-shadow:0 1px 2px rgba(0,0,0,.15);border-radius:3px;overflow:hidden}
+.seg .hd{background:var(--navy2);color:#fff;padding:10px 12px;font-size:15px;font-weight:600;letter-spacing:.3px}
+.seg .bd{background:var(--seg)}
+.seg .frow{border-bottom-color:var(--segline);grid-template-columns:140px 1fr 22px}
+.seg .frow>label{color:var(--seglab)}
+.addr{display:grid;grid-template-columns:1fr 1.5fr .45fr;gap:6px}
+.addr input{border-bottom:1px solid var(--segline)}
+.clsval{cursor:pointer;padding:8px 4px;font-size:15.5px;color:#33404d;min-height:38px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clsval:hover{background:rgba(255,255,255,.5)}
+.clsval.empty{color:#93a391;font-style:italic;font-size:14px}
+.cb{display:inline-block;width:20px;height:20px;border:2px solid #4a5560;border-radius:2px;vertical-align:middle;cursor:pointer;appearance:none;-webkit-appearance:none;background:transparent;margin:0}
+.frow input.cb,.prow input.cb{width:20px;height:20px;padding:0;border:2px solid #4a5560;background:transparent;box-shadow:none}
+.frow input.cb:checked,.prow input.cb:checked{background:var(--navy2);border-color:var(--navy2);box-shadow:inset 0 0 0 3px var(--seg)}
+.cb:checked{background:var(--navy2);border-color:var(--navy2);box-shadow:inset 0 0 0 3px var(--seg)}
+.strip{background:var(--strip);height:46px;display:flex;align-items:center;justify-content:center;gap:10px;border-top:1px solid #000}
+.strip i{width:24px;height:24px;border-radius:50%;background:#7a5a1e;opacity:.8;display:inline-block}
+.strip i.g{background:#3a3b40;border:1px solid #66686e}.strip i.r{background:#8a3a22}.strip i.b{background:#233a5c}
+/* PSAP */
+.psap{box-shadow:0 1px 2px rgba(0,0,0,.15);border-radius:3px;overflow:hidden}
+.psap .hd{background:var(--navy);color:#fff;display:flex;align-items:center;padding:7px 10px;gap:8px}
+.psap .hd b{font-size:15px;letter-spacing:.3px}
+.psap .hd span{margin-left:auto;border:1px solid #9fb0cc;border-radius:4px;padding:3px 10px;font-size:13px;font-weight:600}
+.psap .hd span.inv{margin-left:0;background:#fff;color:var(--navy);border-color:#fff}
+.psap .bd{background:var(--psap);min-height:250px}
+.prow{display:grid;grid-template-columns:28px 1fr 30px 28px 64px;align-items:center;gap:4px;padding:6px 8px;border-bottom:1px solid var(--psapline);cursor:pointer}
+.prow .ic{color:#8a929c;font-size:13px;text-align:center}
+.prow .nm{font-size:14.5px;color:#36404d;line-height:1.2}
+.prow .rd{width:18px;height:18px;border:2px solid #4a5560;border-radius:50%}
+.prow.sel .rd{background:var(--navy2);border-color:var(--navy2)}
+.prow .bt{display:flex;gap:3px}
+.prow .bt i{width:28px;height:26px;border-radius:3px;background:var(--blue);display:inline-block}
+.prow .bt i.o{background:var(--orange)}
+.psap .note{font-size:11.5px;color:var(--muted);padding:8px 10px;line-height:1.35}
+.blank{background:#f1f2f0;border-radius:3px;height:110px;margin-top:14px;box-shadow:0 1px 2px rgba(0,0,0,.12)}
+/* parte bassa */
+.lower{margin-top:14px;background:#f3f4f6;flex:1;display:flex;flex-direction:column;box-shadow:0 -1px 0 #cfd3d9}
+nav.btabs{display:flex;background:#e7e9ed;border-bottom:1px solid #d3d7dd;overflow-x:auto}
+nav.btabs button{background:transparent;border:0;border-right:1px solid #d7dbe0;padding:12px 24px;font:inherit;font-size:14px;color:#3d5079;text-transform:uppercase;letter-spacing:.3px;cursor:pointer;white-space:nowrap}
+nav.btabs button.on{background:#d3d7de;color:#1f2b44;font-weight:600}
+.badge{display:inline-block;background:#2f8a3d;color:#fff;border-radius:3px;font-size:11px;padding:0 5px;margin-left:6px;vertical-align:1px}
+.view{display:none;padding:14px 18px}.view.on{display:block}
+.empty-msg{color:var(--muted);padding:20px 0}
+.transcript p{margin:4px 0;color:#6a7280}
+.transcript p.cur{color:var(--ink);font-weight:600;background:#fff5cf;border-radius:3px;padding:0 4px}
+.kpis{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.kpi{background:#fff;border:1px solid #dde1e6;border-radius:3px;padding:8px 12px;min-width:120px}
+.kpi b{display:block;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.kpi span{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+table{width:100%;border-collapse:collapse;font-size:14px;background:#fff}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #e1e4e8;vertical-align:top}
+th{font-size:12.5px;color:#7a8394;font-weight:600;text-transform:uppercase;letter-spacing:.4px;background:#f3f4f6}
+td.num{font-variant-numeric:tabular-nums}
+.ok{color:var(--ok);font-weight:700}.ko{color:var(--ko);font-weight:700}.wn{color:var(--warn);font-weight:700}
+tr.bad td{background:var(--kobg)}
+.card{margin-bottom:16px}
+.card h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:#3d5079}
+.muted{color:var(--muted)}
+.help li{margin:5px 0;line-height:1.45}
+.row-btns{display:flex;gap:8px;margin-top:10px}
+/* barra laterale */
+.side{background:var(--side);padding:12px 10px;display:flex;flex-direction:column;gap:12px}
+.scard{background:var(--card);border-radius:3px;padding:10px 10px 12px;font-size:13px;color:#34404f}
+.scard .sh{display:flex;align-items:center;gap:8px;padding-bottom:7px;margin-bottom:8px;border-bottom:3px solid #d8463d}
+.scard .sh i{width:20px;height:20px;border-radius:50%;background:#1c1c1e;color:#fff;font-size:12px;font-style:normal;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.scard .sh b{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:#4a5568}
+.scard label{display:block;margin:7px 0 3px;color:#5a6576;font-size:12px}
+.scard select,.scard input[type=range]{width:100%;font:inherit;font-size:13px}
+.scard select{padding:4px;border:1px solid #cdd3db;border-radius:3px;background:#fff}
+.scard .ck{display:flex;align-items:center;gap:7px;margin:6px 0;color:#34404f;font-size:13px}
+.scard .val{float:right;font-weight:600;color:#34404f;font-variant-numeric:tabular-nums}
+.scard .sig{font-style:italic;color:#8a93a1;font-size:12px;margin-top:6px}
+/* finestra classificazione */
+.modal{position:fixed;inset:0;background:rgba(10,18,32,.35);display:none;align-items:flex-start;justify-content:center;z-index:20;padding-top:120px}
+.modal.on{display:flex}
+.mbox{background:#fff;width:min(820px,94vw);box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.mbox .mh{background:#2d5597;color:#fff;padding:11px 16px;font-size:17px;font-weight:600}
+.mbox .mb{padding:22px 18px 18px}
+.mrow{display:grid;grid-template-columns:130px 1fr 26px;align-items:center;gap:6px;margin-bottom:10px;position:relative}
+.mrow label{color:#5b6472;font-size:15px}
+.mrow input{border:0;border-bottom:1px solid #cfd6df;font:inherit;font-size:17px;padding:7px 4px;outline:none;color:#2b3340}
+.mrow input:focus{border-bottom-color:#2d5597}
+.mrow .x{color:#7d8a90;cursor:pointer;text-align:center;font-size:18px}
+.mlist{grid-column:2/4;border:1px solid #e1e5ea;max-height:330px;overflow:auto;display:none;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.mlist.on{display:block}
+.mlist div{padding:7px 10px;font-size:15px;color:#37414e;cursor:pointer}
+.mlist div.hi,.mlist div:hover{background:#e8eef8}
+.mfoot{display:flex;justify-content:space-between;align-items:center;margin-top:10px;color:var(--muted);font-size:12px}
+/* varie */
+.dialog{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:30}
+.dialog.on{display:flex}
+.dialog .box{background:#fff;border-radius:4px;padding:18px 20px;max-width:380px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#1d2533;color:#fff;padding:8px 14px;border-radius:4px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:40}
+.toast.on{opacity:1}
+.warnbox{background:var(--warnbg);color:var(--warn);padding:8px 14px;display:none;font-size:14px}
+.warnbox.on{display:block}
+
+/* NUE112@HOME: aggiunte */
+.endbox{min-width:340px;padding:0 0 16px!important;overflow:hidden;text-align:center}
+.endh{background:#e3342b;color:#fff;font-weight:700;letter-spacing:.6px;padding:12px;font-size:17px}
+.endl{margin-top:16px;color:#6f7886;font-size:13px;text-transform:uppercase;letter-spacing:.4px}
+.endd{font-size:44px;font-weight:700;color:#1f3a6b;font-variant-numeric:tabular-nums;margin:2px 0 8px}
+.endi{font-size:14px;line-height:1.6;color:#34404f;padding:0 18px}
+.endbox .row-btns{padding:0 16px}
+.prow.auto .nm::after{content:'proposto';display:inline-block;margin-left:6px;font-size:10.5px;color:#2a5ca8;border:1px solid #9db7e0;border-radius:3px;padding:0 4px;vertical-align:1px}
+.prow.sent.auto .nm::after{display:none}
+.chi .frow{grid-template-columns:78px 1fr 18px;padding:0 6px 0 8px}
+.chi .frow>label{font-size:13px}.chi .frow input{font-size:14.5px}
+.ptabs span{padding:8px 9px 7px;font-size:11.5px}
+.seg .frow{min-height:50px;grid-template-columns:150px 1fr 24px}
+.seg .frow>label{font-size:15px}
+.seg .frow input,.seg .clswrap input{font-size:17.5px;font-weight:500}
+.seg .hd{font-size:16.5px;padding:12px 14px}
+.prow{grid-template-columns:22px 1fr 20px 24px!important;padding:7px 8px}
+.prow .bt{display:none}
+.prow .nm{font-size:14px}
+.psap .hd{flex-wrap:wrap}
+.psap .hd span{font-size:11.5px;padding:2px 6px}
+.qpanel{grid-template-columns:1fr!important}
+.acdrop{position:absolute;left:0;top:100%;min-width:100%;background:#fff;border:1px solid #d9dee5;box-shadow:0 6px 16px rgba(0,0,0,.18);max-height:260px;overflow:auto;z-index:16;display:none}
+.acdrop.on{display:block}
+.acdrop div{padding:6px 10px;font-size:15px;color:#37414e;cursor:pointer;white-space:nowrap;text-transform:uppercase}
+.acdrop div.hi,.acdrop div:hover{background:#e8eef8}
+.acwrap{position:relative}
+.acwrap input{width:100%}
+.frow input::placeholder{text-transform:none;color:#8fa08e;font-size:13.5px}
+.simbar{background:#2b3442;color:#cfd6e2;display:flex;align-items:center;gap:8px;padding:6px 14px;flex-wrap:wrap}
+.switch{display:inline-flex;border-radius:4px;overflow:hidden;margin-right:8px;border-color:#5b677a}
+.switch button{background:transparent;border:0;color:#cfd6e2;padding:6px 14px;font:inherit;font-size:13px;cursor:pointer;text-transform:uppercase;letter-spacing:.3px}
+.switch button.on{background:#e3342b;color:#fff;font-weight:600}
+.switch.locked{opacity:.5;pointer-events:none}
+.sbtn{background:#3c4759;border:1px solid #556175;color:#eef2f8;padding:6px 11px;border-radius:3px;font:inherit;font-size:12.5px;cursor:pointer;text-transform:uppercase;letter-spacing:.3px}
+.sbtn:hover{background:#465369}.sbtn:disabled{opacity:.35;cursor:not-allowed}
+.sbtn.ring{background:#1f8a4c;border-color:#1f8a4c}
+.simbar .sep{width:1px;height:22px;background:#556175;margin:0 4px}
+.simrep{margin-left:auto;font-size:12.5px}
+.micst{font-size:12px;padding:3px 8px;border-radius:3px;background:#3c4759}
+.micst.on{background:#1f5f3a;color:#d8ffe6}.micst.err{background:#6b2620;color:#ffe2df;max-width:520px}
+body:not(.inter) .intonly{display:none!important}
+body.inter .stdonly{display:none!important}
+.ringb{display:none;background:#e3342b;color:#fff;font-size:13px;padding:4px 10px;border-radius:3px;animation:blink 1s steps(2,start) infinite}
+.ringb.on{display:inline-block}
+@keyframes blink{50%{background:#8f1d17}}
+#form.locked .panels{opacity:.55}
+#form.needf10 .seg .hd::after{content:"  · premi F10 per aprire la segnalazione";font-weight:400;font-size:12px;opacity:.8}
+.frow input:disabled{color:#55606b}
+.locq{display:inline-block;width:11px;height:11px;border-radius:50%;margin-left:6px;vertical-align:0;border:1px solid rgba(0,0,0,.25)}
+.locq.q0{background:#b8bec4}.locq.q1{background:#d9443a}.locq.q2{background:#f0b43c}.locq.q3{background:#2f9e4f}
+.clswrap{position:relative;display:flex;align-items:center}
+.clswrap input{flex:1}
+.clswin{border:1px solid var(--segline);background:rgba(255,255,255,.5);border-radius:3px;width:28px;height:26px;cursor:pointer;color:#4a5560;font-size:15px;padding:0}
+#clsIn.partial{color:#a96a08}
+.clsdrop{position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid #d9dee5;box-shadow:0 6px 16px rgba(0,0,0,.18);max-height:300px;overflow:auto;z-index:15;display:none}
+.clsdrop.on{display:block}
+.clsdrop div{padding:6px 10px;font-size:14px;color:#37414e;cursor:pointer;border-bottom:1px solid #f0f2f5}
+.clsdrop div.hi,.clsdrop div:hover{background:#e8eef8}
+.psap .hd button.inv{margin-left:0;background:#fff;color:var(--navy);border:1px solid #fff;border-radius:4px;padding:3px 10px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.prow .nm em{display:none;font-style:normal;color:var(--ok);font-size:11.5px;margin-left:6px;font-weight:600}
+.prow.sent .nm em{display:inline}
+.qcard{background:#f1f2f0;border-radius:3px;margin-top:14px;box-shadow:0 1px 2px rgba(0,0,0,.12);overflow:hidden}
+.qh{background:var(--navy);color:#fff;font-size:12.5px;font-weight:600;padding:7px 10px;letter-spacing:.3px}
+.qh small{font-weight:400;opacity:.75;margin-left:6px}
+.qpanel{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:8px}
+.qb{display:flex;justify-content:space-between;align-items:center;gap:6px;background:#fff;border:1px solid #d5dae1;border-radius:3px;padding:6px 8px;font:inherit;font-size:12.5px;color:#34404f;cursor:pointer;text-align:left}
+.qb:hover{background:#e8eef8}.qb kbd{font-size:10.5px;color:#7a8394;font-family:inherit;white-space:nowrap}
+.transcript p.op{color:#1f3a6b}.transcript p.ch{color:#3a3f47}
+.transcript{max-height:340px;overflow:auto}
+.proto{background:#fff;border:1px solid #dde1e6;border-radius:3px;padding:10px 12px;margin-bottom:12px;font-size:13.5px}
+.chips2{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.qc{background:#e5f5ea;color:#1f6b3d;border-radius:3px;padding:2px 8px;font-size:12.5px}
+.qc.bad{background:#fff3df;color:#8a5a06}.qc.miss{background:#fbe9e7;color:#a12f26}
+.mobileblock{position:fixed;inset:0;background:#14294b;color:#fff;display:none;align-items:center;justify-content:center;z-index:50;text-align:center;padding:30px}
+.mobileblock.on{display:flex}.mobileblock b{font-size:26px}.mobileblock p{font-size:16px;line-height:1.5}.mobileblock .muted{color:#aab6c8}
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>NUE112@HOME</h1>
+  <div class="chips">
+    <div class="chip"><i><svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4 0-9 2-9 5v3h18v-3c0-3-5-5-9-5z"/></svg></i>sviluppato da Rosario Conte - O.T. CUR Sarno</div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="status">
+    <span id="stA">Aperta</span><span id="stQ">Qualificata</span><span id="stI">Inoltrata</span><span id="stE">Eseguita</span>
+  </div>
+  <div class="tb"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15.2 15.2 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z"/></svg>112</div>
+  <div class="tb"><svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V9h14zM7 11h5v5H7z"/></svg><span id="tDate">—</span></div>
+  <div class="tb"><svg viewBox="0 0 24 24"><path d="M15 1H9v2h6zm-4 13h2V8h-2zm8-6.6 1.4-1.4-1.4-1.4-1.4 1.4A9 9 0 1 0 21 13a9 9 0 0 0-2-5.6zM12 20a7 7 0 1 1 0-14 7 7 0 0 1 0 14z"/></svg>
+    <div class="tmr"><b id="tMain">00:00.0</b><small id="tAfter" title="Tempo dalla fine dell'audio">00:00.0</small></div></div>
+  <div class="tb"><span class="state" id="tState">pronto</span><span class="ringb" id="ringBanner">📞 CHIAMATA IN ARRIVO · <b>F9</b> rispondi · <span id="ringSec">0 s</span></span></div>
+  <div class="tbtns">
+    <button class="tbtn plain" id="bAbort" disabled>ANNULLA</button>
+    <button class="tbtn save" id="bSave" disabled title="Ctrl+Invio">SALVA ED ESCI</button>
+  </div>
+</div>
+<!-- barra del simulatore (non esiste nel gestionale vero) -->
+<div class="simbar">
+  <div class="switch" id="simSwitch"><button data-sim="std" class="on">Standard</button><button data-sim="int">Interattivo</button></div>
+  <button class="sbtn ring" id="bNew" title="Genera una chiamata in arrivo">Genera chiamata<span class="kbd">F2</span></button>
+  <button class="sbtn" id="bAnswer" disabled>Rispondi<span class="kbd">F9</span></button>
+  <button class="sbtn" id="bReport" disabled>Nuova segnalazione<span class="kbd">F10</span></button>
+  <span class="sep"></span>
+  <button class="sbtn stdonly" id="bPause" disabled>Pausa<span class="kbd">F7</span></button>
+  <button class="sbtn stdonly" id="bRepLine" disabled>Ripeti frase<span class="kbd">F8</span></button>
+  <button class="sbtn stdonly" id="bRepAll" disabled>Da capo</button>
+  <span class="micst intonly" id="micState">microfono spento</span>
+  <span class="simrep">Ripetizioni <b id="tRep">0</b></span>
+</div>
+<div class="warnbox" id="fileHint">Aperto come file: Chrome può chiedere il permesso del microfono più volte. Per evitarlo avvia con <b>Avvia NUE112@HOME.bat</b> (indirizzo http://localhost:8112) e scegli "Consenti durante la visita al sito". <a href="#" onclick="this.parentNode.classList.remove('on');return false">Chiudi</a></div>
+<div class="warnbox" id="noTts">Questo browser non ha la sintesi vocale: usa Chrome o Edge sul computer.</div>
+<div class="mobileblock" id="mobileBlock"><div><b>NUE112@HOME</b><p>Il simulatore funziona solo da computer, con tastiera fisica (F9, F10, Alt+1…0).</p><p class="muted">Aprilo da Chrome o Edge sul PC.</p><button class="tbtn" onclick="this.closest('.mobileblock').classList.remove('on')">Apri comunque</button></div></div>
+
+<div class="layout">
+<div class="work">
+  <form id="form" autocomplete="off" onsubmit="return false">
+  <div class="panels">
+    <!-- CHIAMANTE -->
+    <div>
+      <div class="ptabs"><span class="on">Chiamante</span><span>ALI</span><span>AML</span><span>APPS</span><span>WKU</span></div>
+      <div class="chi">
+        <div class="frow"><label for="f_tel">Telefono</label><input type="text" id="f_tel" inputmode="tel"><span class="x" data-clear="f_tel">×</span></div>
+        <div class="frow"><label for="f_cognome">Cognome</label><input type="text" id="f_cognome"><span class="x" data-clear="f_cognome">×</span></div>
+        <div class="frow"><label for="f_nome">Nome</label><input type="text" id="f_nome"><span class="x" data-clear="f_nome">×</span></div>
+        <div class="nota"><div class="h"><span>Nota</span><span id="notaCnt">0/2000</span></div><textarea id="f_nota" maxlength="2000" placeholder="Appunti liberi (non valutati)"></textarea></div>
+      </div>
+    </div>
+    <!-- SEGNALAZIONE -->
+    <div class="seg">
+      <div class="hd">SEGNALAZIONE N. <span id="segNum">—</span></div>
+      <div class="bd">
+        <div class="frow"><label>Indirizzo <i class="locq q0" id="locQ"></i></label>
+          <div class="addr">
+            <div class="acwrap"><input type="text" id="f_com" placeholder="Comune"><div class="acdrop" id="acCom"></div></div>
+            <div class="acwrap"><input type="text" id="f_via" placeholder="Via"><div class="acdrop" id="acVia"></div></div>
+            <input type="text" id="f_civ" placeholder="Civ/km">
+          </div><span class="x" data-clear="f_com,f_via,f_civ">×</span></div>
+        <div class="frow"><label for="f_ref">Riferimento</label><input type="text" id="f_ref"><span class="x" data-clear="f_ref">×</span></div>
+        <div class="frow clsrow"><label for="clsIn">Classificazione</label><div class="clswrap"><input type="text" id="clsIn" placeholder="scrivi per cercare · spazio = tutte · F4 finestra"><button type="button" class="clswin" id="clsWin" title="Finestra classificazione (F4)">≡</button><div class="clsdrop" id="clsDrop"></div></div><span class="x" id="clsClear">×</span></div>
+        <select id="f_cls" hidden></select><select id="f_det" hidden></select>
+        <div class="frow"><label>Alta Priorità</label><div><input type="checkbox" class="cb" id="f_alta"></div><span></span></div>
+        <div class="frow"><label>Attesa</label><div><input type="checkbox" class="cb" id="f_attesa"></div><span></span></div>
+        <div class="frow" style="border-bottom:0"><label>Collegate</label><div></div><span></span></div>
+      </div>
+      <div class="strip" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i class="g"></i><i class="g"></i><i class="r"></i><i class="b"></i></div>
+    </div>
+    <!-- PSAP -->
+    <div>
+      <div class="psap">
+        <div class="hd"><b>PSAP</b><span>AGGIUNGI +</span><button type="button" class="inv" id="bInvia">INVIA</button></div>
+        <div class="bd" id="psapList"></div>
+      </div>
+      <div class="blank stdonly"></div>
+      <div class="qcard intonly"><div class="qh">DOMANDE AL CHIAMANTE <small>a voce o Alt+tasto</small></div><div class="qpanel" id="qpanel"></div></div>
+    </div>
+  </div>
+  </form>
+
+  <div class="lower">
+    <nav class="btabs">
+      <button data-v="esito" class="on">Esito<span class="badge" id="accBadge" hidden></span></button>
+      <button data-v="testo">Testo chiamata</button>
+      <button data-v="stats">Statistiche</button>
+      <button data-v="help">Istruzioni</button>
+    </nav>
+    <section id="v-esito" class="view on"><div id="result"><div class="empty-msg">Premi <b>Genera chiamata</b> (F2): il telefono squilla. Rispondi con <b>F9</b>, apri la segnalazione con <b>F10</b>, compila e chiudi con <b>Salva ed esci</b> (Ctrl+Invio).</div></div></section>
+    <section id="v-testo" class="view"><div class="transcript" id="transcript"><div class="empty-msg">Nessuna chiamata in corso.</div></div></section>
+    <section id="v-stats" class="view">
+      <div class="card"><h3>Riepilogo</h3><div class="kpis" id="sKpi"></div><div class="muted" id="sTrend"></div></div>
+      <div class="card"><h3>Campi sbagliati più spesso</h3><div id="sFields"></div></div>
+      <div class="card"><h3>Ultime prove</h3><div id="sTable" style="overflow-x:auto"></div>
+        <div class="row-btns"><button class="tbtn" id="bCsv">Copia CSV</button><button class="tbtn" id="bReset">Azzera statistiche</button></div>
+        <div class="muted" style="font-size:12px;margin-top:6px">Le statistiche restano salvate solo in questo browser, su questo dispositivo.</div></div>
+    </section>
+    <section id="v-help" class="view help">
+      <div class="card"><h3>Flusso della chiamata (come nel gestionale)</h3><ol>
+        <li><b>F2 · Genera chiamata</b>: il telefono squilla (tono italiano, 1 s suono e 4 s pausa). Con <b>Turno continuo</b> attivo le chiamate arrivano da sole, ogni 5–15 secondi dopo la chiusura della precedente.</li>
+        <li><b>F9 · Rispondi</b>: sei in linea, parte la durata della chiamata. Si misura il tempo di risposta dallo squillo.</li>
+        <li><b>F10 · Nuova segnalazione</b>: si apre la scheda, il <b>numero del chiamante viene importato</b> in automatico (CLI) e lo stato passa ad <b>APERTA</b>. Prima di F10 i campi sono bloccati.</li>
+        <li>Compili la scheda. <b>QUALIFICATA</b> = indirizzo (comune e via) e classificazione inseriti. Il pallino accanto a "Indirizzo" è la qualità della localizzazione: grigio non determinata, rosso solo comune, giallo comune e via, verde con civico.</li>
+        <li>Classificazione come nel manuale: scrivi parte del testo nel campo e scegli dall'elenco (lo <b>spazio</b> a campo vuoto mostra tutte le voci), oppure apri la finestra con <b>F4</b> o il pulsante ≡.</li>
+        <li>Selezioni i PSAP e premi <b>INVIA</b>: stato <b>INOLTRATA</b>. (ESEGUITA non è usata in Italia.)</li>
+        <li>Con <b>INVIA</b> il cronometro si ferma: la durata della gestione è da F9 all'invio. <b>Salva ed esci</b> (Ctrl+Invio) registra l'esito, pulisce la scheda e la prepara per la chiamata successiva. <b>Annulla</b> chiude senza salvare.</li>
+        <li><b>Comune e via</b> si completano mentre scrivi (NAP → NAPOLI): Tab o Invio conferma il suggerimento e passa al campo dopo, le frecce scorrono l'elenco. L'elenco delle vie è generico, non il viario reale del comune.</li>
+      </ol><p class="muted">Nel browser F12 apre gli strumenti per sviluppatori e F11 lo schermo intero, per questo "aggancia" e "importa CLI" non hanno un tasto.</p></div>
+      <div class="card"><h3>Modalità Standard</h3><ul>
+        <li>In entrambe le modalità standard i dati arrivano in quest'ordine: <b>comune, via, civico, scala, piano, citofono</b>, poi nome e cognome. <b>Dettatura</b>: campo per campo, con classificazione e dettaglio. <b>Chiamata realistica</b>: prima la descrizione del problema, la classificazione la deduci tu.</li>
+        <li><b>F8</b> ripete l'ultima frase (contata come ripetizione), <b>F7</b> mette in pausa la voce.</li>
+      </ul></div>
+      <div class="card"><h3>Modalità Interattiva</h3><ul>
+        <li>Dopo F9 il chiamante aspetta le tue domande (se taci per qualche secondo dice "Pronto? Mi sente?").</li>
+        <li>Protocollo valutato: <b>Di cosa ha bisogno → Comune → Via → Civico → Scala → Piano → Citofono → Nome e cognome</b>. L'esito mostra l'ordine in cui hai chiesto, le domande fuori ordine e quelle non fatte.</li>
+        <li>Domande con i tasti: <b>Alt+1</b> di cosa ha bisogno · <b>Alt+2</b> comune · <b>Alt+3</b> via · <b>Alt+4</b> civico · <b>Alt+5</b> scala · <b>Alt+6</b> piano · <b>Alt+7</b> citofono/interno · <b>Alt+8</b> nome e cognome · <b>Alt+9</b> come si scrive · <b>Alt+0</b> può ripetere · <b>Alt+R</b> punto di riferimento · <b>Alt+T</b> telefono · <b>Alt+E</b> allerto ente. Oppure i pulsanti sotto i PSAP.</li>
+        <li><b>Fine chiamata</b>: quando dici <b>"allerto ente"</b> (o premi Alt+E) il cronometro si ferma, il chiamante saluta e compare la finestra con la durata. Poi completi la scheda, premi INVIA e Salva ed esci. Se non lo dici, il tempo si ferma all'INVIA.</li>
+        <li><b>A voce</b>: attiva "Domande a voce" e usa le <b>cuffie</b> (con le casse il microfono sente il chiamante). Il riconoscimento capisce le parole chiave (comune, via, civico, scala, piano, citofono, interno, nome, cognome…); se parli mentre il chiamante risponde, lui si interrompe.</li>
+        <li><b>Microfono:</b> nella pagina pubblicata su claude.ai il browser lo blocca. Usa il file NUE112@HOME.html in Chrome o Edge. Il microfono resta acceso tra una chiamata e l'altra (ascolta solo durante la chiamata), così il permesso si chiede una volta per apertura della pagina. Aperto come file con doppio clic, Chrome non memorizza il permesso e lo richiede ogni volta che riapri la pagina; per non vederlo più aprilo da <b>http://localhost</b> (vedi sotto), dove il permesso resta salvato.</li>
+        <li><b>Avvio senza richieste ripetute</b>: metti nella stessa cartella <b>NUE112@HOME.html</b>, <b>Avvia NUE112@HOME.bat</b> e <b>server.ps1</b>. Doppio clic su "Avvia NUE112@HOME.bat": si apre una finestra nera (il piccolo server, lasciala aperta) e Chrome su <b>http://localhost:8112</b>. Al primo uso scegli "Consenti durante la visita al sito": da lì il permesso resta salvato. Chiudendo la finestra nera il server si ferma.</li>
+        <li>Se chiedi due volte la stessa cosa, il chiamante alterato si spazientisce. Nel panico a volte sbaglia il civico e si corregge.</li>
+      </ul></div>
+      <div class="card"><h3>Correzione e tempi</h3><ul>
+        <li>Maiuscole, accenti, apostrofi e spazi non contano. Il telefono non è valutato: arriva dal CLI.</li>
+        <li>Via: il tipo si può abbreviare (V., C.SO, P.ZZA, LOC., SS, SP) ma se lo scrivi deve essere giusto. Su autostrade e statali nel civico va il km.</li>
+        <li>Riferimento, evento <b>in casa</b>: scala, piano e citofono in qualunque formato (es. SCALA D 3P CIT. ROSSI; piano terra: PT, T, 0 o TERRA). Evento <b>all'aperto</b>: deve esserci la parola <b>STRADA</b>, altrimenti è errore; se il chiamante dà un punto di riferimento ("fuori alla Banca Intesa") basta il POI: BANCA o INTESA, BELLANAPOLI, FARMACIA… Non serve scrivere "fuori alla".</li>
+        <li>Tempi registrati: <b>risposta</b> (squillo → F9), <b>F9 → F10</b>, <b>localizzazione corretta</b> (da F9 al momento in cui comune, via e civico sono giusti), <b>durata</b> e, in standard, <b>dopo fine audio</b>.</li>
+        <li>Alta Priorità, Attesa e Nota non sono valutati. PSAP valutati solo con "Valuta PSAP" attivo (regole indicative) e solo se la scheda è stata inviata.</li>
+      </ul><p class="muted">Nomi, indirizzi e numeri sono generati a caso. NUE112@HOME è uno strumento di allenamento personale, non collegato al sistema reale.</p></div>
+    </section>
+  </div>
+</div>
+
+<!-- BARRA LATERALE: impostazioni -->
+<aside class="side">
+  <div class="scard"><div class="sh"><i>!</i><b>Turno</b></div>
+    <label class="ck"><input type="checkbox" id="turno"> Turno continuo (chiamate automatiche)</label>
+    <label>Volume squillo</label><input type="range" id="ringVol" min="0.05" max="1" step="0.05" value="0.5">
+    <button class="tbtn" type="button" id="bRingTest" style="margin-top:6px;width:100%">Prova squillo</button>
+  </div>
+  <div class="scard intonly"><div class="sh"><i>!</i><b>Interattivo</b></div>
+    <label class="ck"><input type="checkbox" id="mic"> Domande a voce (microfono, con cuffie)</label>
+    <div style="font-size:11.5px;color:#6f7886;line-height:1.4">Senza microfono usa Alt+1…0 o i pulsanti sotto i PSAP.</div>
+  </div>
+  <div class="scard"><div class="sh"><i>!</i><b>Chiamata</b></div>
+    <label class="stdonly">Modalità (standard)</label>
+    <select id="mode" class="stdonly"><option value="dict">Dettatura campo per campo</option><option value="real">Chiamata realistica</option></select>
+    <label>Scenari</label><select id="cat"></select>
+    <label>Tono chiamante</label>
+    <select id="tone"><option value="normale">Normale</option><option value="affannato">Affannato</option><option value="alterato">Alterato</option><option value="panico">In panico</option><option value="casuale">Casuale</option></select>
+  </div>
+  <div class="scard"><div class="sh"><i>!</i><b>Voce</b></div>
+    <label>Velocità <span class="val" id="rateVal">1.00×</span></label>
+    <input type="range" id="rate" min="0.6" max="2" step="0.05" value="1">
+    <label>Pausa tra frasi <span class="val" id="gapVal">0.6 s</span></label>
+    <input type="range" id="gap" min="0" max="3000" step="100" value="600">
+    <label>Voce</label><select id="voice"></select>
+    <button class="tbtn" type="button" id="bTest" style="margin-top:8px;width:100%">Prova voce</button>
+    <div id="ttsDiag" style="font-size:11.5px;color:#6f7886;margin-top:6px;line-height:1.4"></div>
+  </div>
+  <div class="scard"><div class="sh"><i>!</i><b>Opzioni</b></div>
+    <label class="ck"><input type="checkbox" id="spell"> Spelling del cognome</label>
+    <label class="ck"><input type="checkbox" id="psapOn"> Valuta PSAP (indicativo)</label>
+    <label class="ck"><input type="checkbox" id="showText"> Mostra testo durante la chiamata</label>
+    <div class="sig">- NUE112@HOME</div>
+  </div>
+</aside>
+</div>
+
+<div class="modal" id="clsModal"><div class="mbox">
+  <div class="mh">Classificazione</div>
+  <div class="mb">
+    <div class="mrow"><label>Classificazione</label><input id="mCls" autocomplete="off"><span class="x" id="mClsX">×</span><div class="mlist" id="mClsList"></div></div>
+    <div class="mrow"><label>Dettaglio</label><input id="mDet" autocomplete="off" disabled><span class="x" id="mDetX">×</span><div class="mlist" id="mDetList"></div></div>
+    <div class="mfoot"><span>Scrivi per filtrare · ↑↓ per scegliere · Invio conferma · Esc chiude</span><button class="tbtn" id="mClose" type="button">Chiudi</button></div>
+  </div>
+</div></div>
+
+<div class="dialog" id="endDlg"><div class="box endbox">
+  <div class="endh">FINE CHIAMATA</div>
+  <div class="endl">Durata chiamata</div><div class="endd" id="endDur">00:00.0</div>
+  <div class="endi" id="endInfo"></div>
+  <div class="muted" style="font-size:12px;margin-top:8px">Il cronometro è fermo. Completa la scheda, premi INVIA e poi Salva ed esci.</div>
+  <div class="row-btns" style="justify-content:flex-end"><button class="tbtn save" id="endOk" style="font-size:13px">OK</button></div>
+</div></div>
+<div class="dialog" id="dlg"><div class="box">
+  <p id="dlgMsg"></p>
+  <div class="row-btns" style="justify-content:flex-end">
+    <button class="tbtn" id="dlgNo">Annulla</button>
+    <button class="tbtn save" id="dlgYes" style="font-size:13px">Conferma</button>
+  </div>
+</div></div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
+
+/* ---------------- DATI ---------------- */
+const PROV={NA:'Napoli',SA:'Salerno',CE:'Caserta',AV:'Avellino',BN:'Benevento'};
+const COMUNI=[
+ ['Napoli','NA'],['Napoli','NA'],['Napoli','NA'],['Sarno','SA'],['Salerno','SA'],['Nocera Inferiore','SA'],['Nocera Superiore','SA'],
+ ['Scafati','SA'],['Angri','SA'],['Pagani','SA'],["Cava de' Tirreni",'SA'],['Battipaglia','SA'],['Eboli','SA'],['San Valentino Torio','SA'],
+ ["Pomigliano d'Arco",'NA'],['Torre del Greco','NA'],['Torre Annunziata','NA'],['Castellammare di Stabia','NA'],['Pompei','NA'],
+ ['Nola','NA'],['Acerra','NA'],['Casoria','NA'],['Giugliano in Campania','NA'],['Pozzuoli','NA'],['Ercolano','NA'],['Portici','NA'],
+ ['Caserta','CE'],['Aversa','CE'],['Marcianise','CE'],['Maddaloni','CE'],['Avellino','AV'],['Ariano Irpino','AV'],['Benevento','BN']
+];
+const VIE=['Via Roma','Via Garibaldi','Corso Italia','Via Mazzini','Via Cavour','Via Matteotti','Via Aldo Moro','Via Dante Alighieri',
+ 'Piazza Municipio','Via Nazionale','Viale dei Pini','Via Vittorio Veneto','Via Marconi','Via Leopardi','Via San Valentino','Via De Gasperi',
+ 'Via Pertini','Via Manzoni','Via Fiume','Corso Vittorio Emanuele',"Via Sant'Anna",'Via Fratelli Bandiera','Via Santa Lucia','Via Kennedy',
+ 'Via Napoli','Via Lamia','Via Pozzo','Via Trento','Via Tasso','Via Carducci','Via delle Rose','Viale Europa','Piazza Garibaldi',
+ 'Via Antignano','Via Luca Giordano','Via Scarlatti','Via Cilea','Corso Garibaldi','Via San Francesco','Via Croce']
+const NOMI_M=['Antonio','Giuseppe','Salvatore','Ciro','Gennaro','Vincenzo','Francesco','Raffaele','Pasquale','Luigi','Carmine','Domenico','Alfonso','Gaetano','Michele','Enzo','Fabio','Marco','Luca','Alessandro'];
+const NOMI_F=['Carmela','Anna','Maria','Rosa','Immacolata','Teresa','Concetta','Giovanna','Assunta','Lucia','Patrizia','Rita','Angela','Raffaella','Annamaria','Chiara','Federica','Martina','Sara','Ilaria'];
+const COGNOMI=['Esposito','Russo','De Luca','Romano','Coppola','Ferrara','Iovine','Capasso','Cirillo',"D'Angelo",'Sorrentino','Amato',
+ 'Napolitano','Ruggiero','Giordano','Della Corte','Scarpati','Langella','Annunziata','Iervolino','Di Somma','Starace','Vitiello',
+ 'Marino','Gallo','Caputo','Iannone','Pagano','Barbato','Cuomo','Somma','Ambrosio','Del Gaudio','Senatore','Califano','Abate','Pepe','Formisano'];
+const NATO={A:'Ancona',B:'Bologna',C:'Como',D:'Domodossola',E:'Empoli',F:'Firenze',G:'Genova',H:'Hotel',I:'Imola',J:'Jolly',K:'Kappa',L:'Livorno',
+ M:'Milano',N:'Napoli',O:'Otranto',P:'Palermo',Q:'Quarto',R:'Roma',S:'Savona',T:'Torino',U:'Udine',V:'Venezia',W:'Washington',X:'Xeres',Y:'York',Z:'Zara'};
+const ORD=['terra','primo','secondo','terzo','quarto','quinto','sesto','settimo','ottavo'];
+const DIG=['zero','uno','due','tre','quattro','cinque','sei','sette','otto','nove'];
+
+/* ---------------- CLASSIFICAZIONI (dalle schermate del gestionale) ----------------
+   p = gruppi PSAP (indicativi): ogni gruppo deve avere almeno uno dei codici separati da "|"
+   pl = tipo di luogo: u urbano, a autostrada, x extraurbana, m mare/porto, f fiume, i impervio
+   in = 1 se al chiuso (genera il riferimento scala/piano/citofono)                       */
+const LE='CC|PS';
+const TREE=[
+ {c:'Incidente stradale',d:[
+  {n:'Senza feriti in autostrada',p:['PSS'],pl:'a',desc:["c'è stato un tamponamento tra due macchine, stiamo tutti bene ma le auto bloccano la corsia","un furgone si è fermato in panne in mezzo alla carreggiata e mi ha urtato, nessuno è ferito"]},
+  {n:'Senza feriti in viabilità extra urbana',p:['CC|PSS'],pl:'x',desc:["mi sono scontrato con un'altra macchina, stiamo bene ma le auto sono in mezzo alla strada","sono finito fuori strada con la macchina, non mi sono fatto niente ma l'auto è nel fosso"]},
+  {n:'Senza feriti in viabilità urbana',p:[LE],pl:'u',desc:["una macchina ha urtato la mia, stiamo bene ma l'altro conducente non vuole dare i dati","due auto si sono scontrate all'incrocio, nessun ferito ma stanno litigando"]}]},
+ {c:'Rinvenimenti/segnalazioni',d:[
+  {n:'Rinvenimento cadavere',p:['118',LE],pl:'u',desc:["in un terreno qui dietro c'è un uomo a terra, immobile e freddo, credo sia morto"]},
+  {n:'Persone sospette',p:[LE],pl:'u',desc:["da un'ora ci sono due persone che girano intorno alle macchine parcheggiate e guardano dentro","un uomo sta suonando a tutti i citofoni del palazzo e dice di essere del gas, ma non ha tesserino"]},
+  {n:'Rinvenimento veicolo',p:[LE],pl:'u',desc:["sotto casa da giorni c'è una macchina abbandonata con il finestrino rotto, forse è rubata"]},
+  {n:'Minaccia suicidio',p:['118',LE],pl:'u',in:1,desc:["mio fratello mi ha scritto che vuole farla finita e adesso non risponde al telefono"]},
+  {n:'Pacchi/bagagli incustoditi',p:[LE],pl:'u',desc:["alla fermata dell'autobus c'è una valigia abbandonata da più di un'ora"]}]},
+ {c:'Situazioni di pericolo',d:[
+  {n:"Colpi d'arma da fuoco",p:[LE],pl:'u',desc:["ho sentito diversi spari in strada, la gente è scappata"]},
+  {n:'Persona smarrita/scomparsa',p:[LE],pl:'u',in:1,desc:["mio padre anziano è uscito stamattina e non è più tornato","mia figlia di quindici anni non è rientrata da scuola e ha il telefono spento"]},
+  {n:'Persona smarrita in ambiente impervio',p:['VVF'],pl:'i',desc:["sono uscito per un'escursione e mi sono perso, sta facendo buio e non trovo più il sentiero"]},
+  {n:'Persona in difficoltà',p:[LE],pl:'u',desc:["c'è un anziano seduto sul marciapiede, è confuso e non sa dove abita"]}]},
+ {c:'Reati/violazioni',d:[
+  {n:'Allarmi telefonici',p:[LE],pl:'u',desc:["sta suonando l'allarme del negozio qui sotto da mezz'ora e la saracinesca è mezza alzata"]},
+  {n:'Danneggiamenti (anche ambientali)',p:[LE],pl:'u',desc:["stanno rompendo i vetri delle macchine parcheggiate","in un terreno qui vicino stanno scaricando rifiuti da un camion"]},
+  {n:'Evento violento/lite',p:[LE],pl:'u',desc:["due uomini si stanno picchiando davanti al bar","nell'appartamento accanto stanno litigando fortissimo, si sentono urla e cose che si rompono"]},
+  {n:'Maltrattamento animali',p:[LE],pl:'u',in:1,desc:["il vicino tiene un cane legato sul balcone senza acqua, guaisce da giorni"]}]},
+ {c:'Soccorso tecnico urgente',d:[
+  {n:'Fughe di gas/sostanze pericolose',p:['VVF'],pl:'u',in:1,desc:["sulle scale c'è un forte odore di gas","si sente puzza di gas in tutto il palazzo"]},
+  {n:'Incidente industriale',p:['VVF'],pl:'u',desc:["nel capannone della fabbrica qui vicino c'è stato uno scoppio, esce tanto fumo"]},
+  {n:'Incidente con mezzi di trasporto (necessario soccorso tecnico)',p:['VVF'],pl:'x',desc:["un camion si è ribaltato e ha perso il carico su tutta la strada"]},
+  {n:'Soccorso a persona (per soccorso tecnico)',p:['VVF'],pl:'u',in:1,desc:["sono rimasta bloccata in ascensore con mia figlia","mio figlio piccolo si è chiuso in bagno e non riesce più ad aprire"]},
+  {n:'Altro soccorso tecnico urgente per situazioni di pericolo non gestibili con mezzi ordinari relativi a persona e/o animali',sp:'altro soccorso tecnico urgente, persone o animali',p:['VVF'],pl:'u',desc:["un cane è caduto in un pozzo nel cortile e non riesce a uscire","un gatto è bloccato in cima a un palo da ieri"]},
+  {n:'Alberi/tralicci caduti o pericolanti',p:['VVF'],pl:'u',desc:["è caduto un albero sulla strada e ha schiacciato una macchina parcheggiata","un palo della luce è inclinato e sta per cadere sul marciapiede"]},
+  {n:'Eventi atmosferici rilevanti (neve, vento, pioggia)',p:['VVF'],pl:'u',in:1,desc:["con il vento si sta staccando la copertura del tetto","con la pioggia si è allagato lo scantinato, l'acqua continua a salire"]}]},
+ {c:'Soccorso sanitario',d:[
+  {n:'Non noto/non identificato',p:['118'],pl:'u',desc:["mi ha chiamato mia zia dicendo che sta male, poi è caduta la linea e non risponde più"]},
+  {n:'Trauma /malore/infortunio con persona accessibile',sp:'trauma, malore, infortunio con persona accessibile',p:['118'],pl:'u',in:1,desc:["mio marito si è sentito male, è pallido e suda tanto","mia madre è caduta dalle scale e non riesce ad alzarsi","mio padre non riesce a parlare bene, ha la bocca storta"]},
+  {n:'Trauma /malore/infortunio con persona non accessibile (abitazione o luogo chiuso)',sp:'trauma, malore, infortunio con persona non accessibile',p:['118','VVF'],pl:'u',in:1,desc:["la vicina anziana vive da sola, non risponde da ieri, la porta è chiusa e si sente la televisione accesa"]},
+  {n:'Violenza sessuale',p:['118',LE],pl:'u',desc:["una ragazza è entrata nel mio negozio chiedendo aiuto, dice di aver subito violenza ed è sotto shock"]},
+  {n:'Incidente con feriti con persona non accessibile (incastrato)',sp:'incidente con feriti, persona non accessibile, incastrato',p:['118','VVF',LE],pl:'x',desc:["c'è stato un incidente, il conducente è rimasto incastrato tra le lamiere e non riesce a uscire"]},
+  {n:'Incidente con feriti con persona accessibile',sp:'incidente con feriti, persona accessibile',p:['118',LE],pl:'u',desc:["uno scooter si è scontrato con un'auto, il ragazzo è a terra e si lamenta","una macchina ha investito un pedone sulle strisce"]},
+  {n:'Tentato suicidio',p:['118',LE],pl:'u',in:1,desc:["mio fratello ha tentato di togliersi la vita, adesso è cosciente ma sta molto male"]},
+  {n:'Evento violento con feriti',p:['118',LE],pl:'u',desc:["c'è stata una rissa davanti al locale, un ragazzo è ferito e perde sangue dalla testa"]}]},
+ {c:'Altro',d:[{n:'Errore chiamata'}]},
+ {c:'Muta',d:[{n:'Pubblica sicurezza'},{n:'Soccorso sanitario'},{n:'Soccorso tecnico urgente'}]},
+ {c:'Soccorso in mare',d:[
+  {n:'Emergenze in mare negli specchi acque portuali e laghi Maggiore e Garda',sp:'emergenze in mare negli specchi acque portuali',p:['CP'],pl:'m',desc:["una barca a vela ha il motore in avaria e sta andando verso gli scogli del porto"]},
+  {n:'Soccorso tecnico urgente a terra in area portuali e sul litorale marittimo',sp:'soccorso tecnico urgente a terra in area portuale e sul litorale',p:['VVF'],pl:'m',desc:["sul molo si è staccato un pezzo di banchina, c'è una macchina in bilico"]},
+  {n:'Soccorso sanitario in area portuale, sul litorale marittimo e nei laghi Maggiore e di Garda',sp:'soccorso sanitario in area portuale e sul litorale',p:['118'],pl:'m',desc:["un bagnante si è sentito male, l'hanno appena tirato fuori dall'acqua sulla spiaggia"]},
+  {n:'Eventi violenti, risse in area portuale, sul litorale marittimo e nei laghi Maggiore e di Garda',sp:'eventi violenti, risse in area portuale e sul litorale',p:[LE],pl:'m',desc:["al porto due gruppi di ragazzi si stanno picchiando vicino agli imbarchi"]},
+  {n:'Segnalazioni inquinamento in mare, in area portuale e sul litorale marittimo',sp:'segnalazione inquinamento in mare',p:['CP'],pl:'m',desc:["c'è una grossa macchia scura di olio sull'acqua vicino alla spiaggia"]},
+  {n:'Rinvenimento/segnalazioni eventi ambito lacustre e/o fluviale',sp:'rinvenimento o segnalazioni in ambito fluviale',p:[LE],pl:'f',desc:["nel fiume galleggiano tantissimi pesci morti e l'acqua ha un colore strano"]},
+  {n:'Soccorso tecnico urgente a terra, ambito lacustre e/o fluviale',sp:'soccorso tecnico urgente a terra, ambito fluviale',p:['VVF'],pl:'f',desc:["l'argine del fiume sta cedendo, l'acqua sta uscendo sulla strada"]},
+  {n:'Soccorso sanitario ambito lacustre e/o fluviale, esclusi laghi',sp:'soccorso sanitario ambito fluviale',p:['118'],pl:'f',desc:["un pescatore è scivolato sulla riva del fiume e si è fatto male alla gamba"]},
+  {n:'Soccorso a persone o imbarcazioni ambito lacustre e/o fluviale esclusi laghi Maggiore e di Garda',sp:'soccorso a persone o imbarcazioni ambito fluviale',p:['VVF'],pl:'f',desc:["un ragazzo è caduto nel fiume e la corrente lo sta portando via"]}]},
+ {c:'Eventi diversi',d:[
+  {n:'Occupazioni abusive',p:[LE],pl:'u',in:1,desc:["stanotte qualcuno è entrato nell'appartamento sfitto del palazzo e ci sta dormendo"]},
+  {n:'Rinvenimento animali morti',p:[LE],pl:'u',desc:["in mezzo alla strada c'è un cane morto, le macchine lo scansano all'ultimo"]},
+  {n:'Rinvenimento documenti',p:[LE],pl:'u',desc:["ho trovato un portafoglio con dei documenti per terra"]},
+  {n:'Rinvenimento siringhe',p:[LE],pl:'u',desc:["nel parco giochi ci sono delle siringhe per terra vicino agli scivoli"]},
+  {n:'Buche/materiali dispersi',p:[LE],pl:'u',desc:["c'è una buca enorme in mezzo alla carreggiata, le macchine ci finiscono dentro","un camion ha perso del materiale e ci sono pietre su tutta la strada"]},
+  {n:'Problematiche di viabilità',p:[LE],pl:'u',desc:["il semaforo dell'incrocio è spento e c'è un caos di macchine"]}]}
+];
+TREE.forEach((g,gi)=>{g.id='c'+gi;g.d.forEach((d,di)=>{d.id=g.id+'d'+di;d.g=g;});});
+const DETS=TREE.flatMap(g=>g.d);
+const GEN=DETS.filter(d=>d.desc);
+const PSN={'118':'118',CC:'CC',PS:'PS',PSS:'PS Stradale',VVF:'VVF',CP:'CP'};
+
+/* Luoghi non urbani: [via, comune, prov] */
+const PL={
+ a:[['Autostrada A30','Sarno','SA'],['Autostrada A30','Nola','NA'],['Autostrada A30','Nocera Inferiore','SA'],['Autostrada A3','Pompei','NA'],["Autostrada A3","Cava de' Tirreni",'SA'],['Autostrada A1','Caserta','CE'],['Autostrada A16','Avellino','AV']],
+ x:[['Strada Statale 268','Angri','SA'],['Strada Statale 18','Battipaglia','SA'],['Strada Provinciale 2','Sarno','SA'],['Strada Statale 162','Acerra','NA'],['Strada Statale 145','Castellammare di Stabia','NA'],['Strada Statale 7','Maddaloni','CE']],
+ m:[['Via Partenope','Napoli','NA'],['Lungomare Trieste','Salerno','SA'],['Lungomare Colombo','Salerno','SA'],['Via Marina','Torre del Greco','NA'],['Via Molo','Pozzuoli','NA'],['Lungomare Garibaldi','Castellammare di Stabia','NA']],
+ f:[['Via Argine','Scafati','SA'],['Via Ponte Nuovo','San Valentino Torio','SA'],['Via Lagno','Acerra','NA'],['Via Fiume','Sarno','SA'],['Via Volturno','Capua','CE']],
+ i:[['Località Monte Faito','Vico Equense','NA'],['Località Monte Saro','Sarno','SA'],['Località Valle delle Ferriere','Amalfi','SA'],['Località Monte Terminio','Serino','AV'],['Località Monte Taburno','Bonea','BN']]
+};
+
+/* Punti di riferimento all'aperto. s = come lo dice il chiamante, t = come appare nell'atteso, k = basta una di queste parole */
+const POIS=[
+ {s:'fuori alla Banca Intesa',t:'BANCA INTESA',k:['BANCA','INTESA']},
+ {s:'davanti alla pizzeria Bellanapoli',t:'PIZZERIA BELLANAPOLI',k:['BELLANAPOLI']},
+ {s:'fuori al bar Il Sole',t:'BAR IL SOLE',k:['BAR']},
+ {s:'di fronte alla farmacia Santa Lucia',t:'FARMACIA SANTA LUCIA',k:['FARMACIA']},
+ {s:'vicino alla tabaccheria Russo',t:'TABACCHERIA RUSSO',k:['TABACCHERIA','TABACCHI']},
+ {s:'davanti al supermercato Conad',t:'SUPERMERCATO CONAD',k:['CONAD','SUPERMERCATO']},
+ {s:"fuori all'ufficio postale",t:'UFFICIO POSTALE',k:['POSTA','POSTE','POSTALE']},
+ {s:'al distributore Esso',t:'DISTRIBUTORE ESSO',k:['DISTRIBUTORE','ESSO']},
+ {s:'davanti alla chiesa di San Michele',t:'CHIESA SAN MICHELE',k:['CHIESA']},
+ {s:'fuori alla scuola elementare',t:'SCUOLA ELEMENTARE',k:['SCUOLA']},
+ {s:'davanti alla pasticceria Dolce Vita',t:'PASTICCERIA DOLCE VITA',k:['DOLCEVITA','PASTICCERIA']},
+ {s:'vicino alla fermata del pullman',t:'FERMATA BUS',k:['FERMATA']},
+ {s:'davanti al Municipio',t:'MUNICIPIO',k:['MUNICIPIO','COMUNE']},
+ {s:'fuori alla pizzeria Da Gennaro',t:'PIZZERIA DA GENNARO',k:['GENNARO']},
+ {s:'davanti al bar Centrale',t:'BAR CENTRALE',k:['CENTRALE']}
+];
+function poiOk(g,poi){const J=alnum(g),T=toks(g);return poi.k.some(k=>k.length<=4?T.includes(k)||J.includes(k)&&k.length>3:J.includes(k));}
+
+/* ---------------- NORMALIZZAZIONE ---------------- */
+const strip=s=>(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
+const alnum=s=>strip(s).replace(/[^A-Z0-9]/g,'');
+const digits=s=>(s||'').replace(/\D/g,'');
+const toks=s=>strip(s).replace(/([0-9])([A-Z])/g,'$1 $2').replace(/([A-Z])([0-9])/g,'$1 $2').replace(/[^A-Z0-9]+/g,' ').trim().split(' ').filter(Boolean);
+const STYPE={VIA:'VIA',V:'VIA',CORSO:'CORSO',CSO:'CORSO',C:'CORSO',PIAZZA:'PIAZZA',PZZA:'PIAZZA',PZA:'PIAZZA',P:'PIAZZA',VIALE:'VIALE',VLE:'VIALE',
+ LUNGOMARE:'LUNGOMARE',LGM:'LUNGOMARE',LOCALITA:'LOCALITA',LOC:'LOCALITA',AUTOSTRADA:'AUTOSTRADA',AUT:'AUTOSTRADA',SS:'SS',SP:'SP'};
+function street(s){
+  const n=strip(s).replace(/\./g,'').replace(/STRADA\s+STATALE/g,'SS').replace(/STRADA\s+PROVINCIALE/g,'SP').replace(/\bS\s+S\b/g,'SS').replace(/\bS\s+P\b/g,'SP');
+  const t=toks(n);let type=null;if(t.length>1&&STYPE[t[0]]){type=STYPE[t.shift()];}return{type,core:t.join('')};}
+const civNorm=s=>alnum(s).replace(/^(KM|NR|N|CIV)(?=[0-9])/,'');
+function lev(a,b){const m=a.length,n=b.length;if(!m)return n;if(!n)return m;let p=Array.from({length:n+1},(_,i)=>i);
+ for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c;}return p[n];}
+
+/* ---------------- GENERATORE ---------------- */
+function genTel(prov){
+  if(Math.random()<0.75){const pre=rnd(['320','327','328','329','331','333','334','335','338','339','340','345','347','348','349','350','351','366','371','380','388','391','392','393']);
+    let r='';for(let i=0;i<7;i++)r+=ri(0,9);return pre+r;}
+  const area={NA:'081',SA:'089',CE:'0823',AV:'0825',BN:'0824'}[prov]||'081';
+  let r='';const len=10-area.length;for(let i=0;i<len;i++)r+=(i===0?ri(2,8):ri(0,9));return area+r;
+}
+function telSpoken(t){
+  const g=[];if(t[0]==='3'){g.push(t.slice(0,3),t.slice(3,6),t.slice(6,8),t.slice(8));}
+  else{const a=t.startsWith('081')||t.startsWith('089')?3:4;g.push(t.slice(0,a));let r=t.slice(a);while(r.length){g.push(r.slice(0,2));r=r.slice(2);}}
+  return g.filter(Boolean).map(x=>x.split('').map(d=>DIG[+d]).join(' ')).join(', ');
+}
+function spellOf(s){return alnum(s).split('').map(ch=>`${ch} come ${NATO[ch]||ch}`).join(', ');}
+function pianoSp(p){return p===0?'piano terra':`${ORD[p]} piano`;}
+function pianoTxt(p){return p===0?'PT':p+'P';}
+const spoken=s=>s.replace(/\s*\/\s*/g,', ').replace(/\s*\(/g,', ').replace(/\)/g,'');
+const roadSp=v=>v.replace(/^Autostrada /,'autostrada ').replace(/^Strada Statale /,'statale ').replace(/^Strada Provinciale /,'provinciale ');
+
+const TONES={normale:{p:1,r:1,j:.03,l:'Normale'},affannato:{p:.95,r:.85,j:.1,l:'Affannato'},alterato:{p:.85,r:1.15,j:.08,l:'Alterato'},panico:{p:1.4,r:1.3,j:.15,l:'In panico'}};
+function genScenario(mode,spell,cat,toneSel){
+  const tone=toneSel&&TONES[toneSel]?toneSel:rnd(Object.keys(TONES));
+  const pool=cat?GEN.filter(d=>d.g.id===cat):GEN;
+  const det=rnd(pool.length?pool:GEN), grp=det.g;
+  const male=Math.random()<.5;
+  const nome=rnd(male?NOMI_M:NOMI_F), cognome=rnd(COGNOMI);
+  let via,comune,prov,civ;
+  if(det.pl==='u'||!PL[det.pl]){[comune,prov]=rnd(COMUNI);via=rnd(VIE);civ=String(ri(1,180))+(Math.random()<.12?rnd(['A','B','C']):'');}
+  else{[via,comune,prov]=rnd(PL[det.pl]);civ=(det.pl==='a'||det.pl==='x')?String(ri(1,60)):det.pl==='i'?'':String(ri(1,90));}
+  const tel=genTel(prov);
+  let ref=null,poi=null;
+  if(det.in && det.pl==='u'){ // evento al chiuso: scala, piano, citofono sempre
+    ref={scala:Math.random()<.7?rnd('ABCDEF'.split('')):null,piano:ri(0,8),cit:Math.random()<.7?(Math.random()<.6?cognome:rnd(COGNOMI)):String(ri(1,60))};
+  }
+  else if(Math.random()<.6)poi=rnd(POIS); // evento all'aperto: STRADA + a volte un punto di riferimento
+  const exp={tel,cognome,nome,via,civ,comune,prov,grp:grp.id,det:det.id,ref,poi,psap:det.p||[],pl:det.pl};
+  exp.refText=ref?((ref.scala?'SCALA '+ref.scala+' ':'')+pianoTxt(ref.piano)+' CIT. '+ref.cit.toUpperCase()):('STRADA'+(poi?' '+poi.t:''));
+  const strSay=`in strada${poi?', '+poi.s:''}`;
+  const civSp=civ.replace(/([0-9])([A-C])$/,'$1 $2');
+  const isRoad=det.pl==='a'||det.pl==='x';
+  const T=tone;
+  const d0=cap(rnd(det.desc));
+  let descP;
+  if(T==='affannato'){const parts=d0.split(/,\s*/);descP=[];parts.forEach((x,i)=>{descP.push(x+(i<parts.length-1?'...':'.'));if(i<parts.length-1&&Math.random()<.7)descP.push(rnd(['Ah...','Ah... ah...','Mi scusi...']));});}
+  else if(T==='panico'){const w=d0.split(' ');descP=[w.slice(0,Math.min(4,w.length)).join(' ')+'... '+d0+'!',rnd(['Oddio, oddio!','Fate presto, vi prego!','Non so cosa fare!'])];}
+  else if(T==='alterato'){descP=[d0+'!',rnd(['Mandate qualcuno, subito!','Ogni volta la stessa storia!','Qua nessuno fa niente!'])];}
+  else descP=[d0+'.'];
+  // nel panico a volte il chiamante sbaglia civico/km e poi si corregge
+  let civSay=civSp,fix=null;
+  if(T==='panico'&&civ&&Math.random()<.5){
+    const n=parseInt(civ,10);let w=String(n).split('').reverse().join('');if(w===String(n)||w.startsWith('0'))w=String(n+ri(1,3));
+    civSay=w;fix=`No, no, scusi, ho sbagliato! ${isRoad?'Il chilometro':'Il numero'} è ${civSp}!`;
+  }
+  let chunks=[];
+  // ordine richiesto: comune, via, civico, scala, piano, citofono (poi nome e cognome)
+  if(mode==='dict'){
+    chunks.push(`Comune: ${comune}.`);
+    if(isRoad)chunks.push(`Via: ${roadSp(via)}.`,`Chilometro: ${civ}.`);
+    else if(det.pl==='i')chunks.push(`Via: ${via}.`,'Civico: nessuno.');
+    else chunks.push(`Via: ${via}.`,`Civico: ${civSp}.`);
+    if(ref){
+      chunks.push(ref.scala?`Scala: ${ref.scala}.`:'Scala: nessuna.');
+      chunks.push(`Piano: ${ref.piano===0?'terra':ORD[ref.piano]}.`);
+      chunks.push(`Citofono: ${ref.cit}.`);
+    }else chunks.push(`Riferimento: ${strSay}.`);
+    chunks.push(`Cognome: ${cognome}.`);
+    if(spell)chunks.push(spellOf(cognome)+'.');
+    chunks.push(`Nome: ${nome}.`);
+    chunks.push(`Classificazione: ${spoken(grp.c)}.`);
+    chunks.push(`Dettaglio: ${det.sp||spoken(det.n)}.`);
+  }else{
+    const PICK={
+      normale:['Pronto? Sì, buongiorno.','Pronto, è il 112? Ho bisogno di aiuto.','Sì, pronto, mi sente?','Buonasera, chiamo per un\'emergenza.'],
+      affannato:['Pronto... pronto... mi sente?','Pronto... aspetti... ho il fiatone...','Pronto... ah... ho bisogno di aiuto...'],
+      alterato:['Pronto! Era ora che rispondeste!','Pronto, è da mezz\'ora che chiamo!','Pronto! Ma si può aspettare così tanto?'],
+      panico:['Aiuto! Aiuto! Pronto?!','Pronto?! Oddio, oddio, correte!','Pronto, pronto! Fate presto, vi prego!']
+    };
+    const intro=rnd(PICK[T]);
+    const nameP=[rnd([`Mi chiamo ${nome} ${cognome}.`,`Sono ${nome} ${cognome}.`,`Il mio nome è ${nome}, di cognome ${cognome}.`])];
+    if(T==='alterato'&&Math.random()<.5)nameP.unshift('Ma che c\'entra il nome adesso? Va bene...');
+    if(spell)nameP.push(`Il cognome si scrive: ${spellOf(cognome)}.`);
+    const preAddr={normale:['Aspetti, aspetti un attimo...','Ehm, allora...'],affannato:['Ah... allora...','Aspetti... riprendo fiato...'],alterato:['Ve lo ripeto, segnatevelo bene.','Scrivete, va.'],panico:['Oddio, dove sono... sì, sì...','Aspetti, aspetti, non mi ricordo... ah sì!']};
+    const addrP=[];
+    if(Math.random()<(T==='normale'?.25:.6))addrP.push(rnd(preAddr[T]));
+    addrP.push(rnd([`Sono a ${comune}.`,`Siamo a ${comune}.`,`Il comune è ${comune}.`]));
+    if(det.pl==='a')addrP.push(`Sull'${roadSp(via)}.`,`Al chilometro ${civSay}.`);
+    else if(det.pl==='x')addrP.push(`Sulla ${roadSp(via)}.`,`All'altezza del chilometro ${civSay}.`);
+    else if(det.pl==='i')addrP.push(`In ${via}.`,'Non c\'è numero civico, sono su un sentiero.');
+    else addrP.push(rnd([`In ${via}.`,`La via è ${via}.`]),rnd([`Numero ${civSay}.`,`Al civico ${civSay}.`]));
+    if(fix)addrP.push(fix);
+    if(T==='affannato'&&Math.random()<.5)addrP.push('Ah... ah...');
+    const refP=[];
+    if(ref){
+      refP.push(ref.scala?`Scala ${ref.scala}.`:'Non c\'è scala, c\'è un solo portone.');
+      refP.push(ref.piano===0?'Piano terra.':`${cap(ORD[ref.piano])} piano.`);
+      refP.push(`Sul citofono c'è ${ref.cit}.`);
+    }else refP.push(rnd([`Sono ${strSay}.`,`Siamo ${strSay}.`]));
+    const endP={normale:[],affannato:['Non ce la faccio più...'],alterato:['Allora, vi muovete o no?'],panico:['Fate presto, per favore, fate presto!']}[T];
+    [[intro],descP,addrP,refP,nameP,endP].forEach(p=>chunks.push(...p));
+  }
+  chunks=chunks.filter(Boolean);
+  const P=TONES[tone],J=P.j;
+  const pros=chunks.map(()=>({p:Math.min(2,Math.max(.1,P.p*(1+(Math.random()*2-1)*J))),r:P.r*(1+(Math.random()*2-1)*J)}));
+  return{exp,chunks,pros,tone,descP,civSay,civSp,fix,det,isRoad};
+}
+
+/* ---------------- VOCE ---------------- */
+const synth=window.speechSynthesis||null;
+let voices=[];
+function loadVoices(){
+  if(!synth)return;
+  const all=synth.getVoices();
+  let it=all.filter(v=>/^it/i.test(v.lang));
+  voices=it.length?it:all;
+  const sel=$('#voice'),saved=settings.voice;sel.innerHTML='';
+  voices.forEach((v,i)=>{const o=document.createElement('option');o.value=v.name;o.textContent=v.name.replace(/Microsoft |Google /,'')+' ('+v.lang+')';sel.appendChild(o);});
+  if(!voices.length){const o=document.createElement('option');o.textContent='predefinita';o.value='';sel.appendChild(o);}
+  if(saved&&voices.some(v=>v.name===saved))sel.value=saved;
+  ttsDiag();
+}
+
+const curVoice=()=>voices.find(v=>v.name===$('#voice').value)||null;
+
+/* ---------------- STATO ---------------- */
+let settings=Object.assign({sim:'std',mode:'dict',rate:1,gap:600,voice:'',spell:false,psapOn:false,showText:false,cat:'',tone:'normale',mic:false,turno:false,ringVol:.5},store.get('s112_settings2',{}));
+/* phase: idle | ringing | answered (F9) | open (F10) | done */
+let S={phase:'idle',sc:null,cur:null,idx:0,playing:false,paused:false,t0:0,tRing:0,tRep:null,tEnd:null,tLoc:null,tick:null,rep:0,done:true,gapT:null,utt:null,lastHeard:0,
+  inter:false,dlg:[],qlog:[],lastAns:null,asked:{},inoltro:false,nextT:null,promptT:null};
+const isActive=()=>S.phase==='answered'||S.phase==='open';
+
+function applySettings(){
+  $('#mode').value=settings.mode;$('#rate').value=settings.rate;$('#gap').value=settings.gap;
+  $('#cat').value=settings.cat||'';$('#tone').value=settings.tone||'normale';$('#spell').checked=settings.spell;$('#psapOn').checked=settings.psapOn;$('#showText').checked=settings.showText;
+  $('#mic').checked=settings.mic;$('#turno').checked=settings.turno;$('#ringVol').value=settings.ringVol;
+  $('#rateVal').textContent=(+settings.rate).toFixed(2)+'×';$('#gapVal').textContent=(settings.gap/1000).toFixed(1)+' s';
+  setSim(settings.sim,true);
+}
+function saveSettings(){
+  settings=Object.assign(settings,{mode:$('#mode').value,rate:+$('#rate').value,gap:+$('#gap').value,voice:$('#voice').value,spell:$('#spell').checked,psapOn:$('#psapOn').checked,showText:$('#showText').checked,cat:$('#cat').value,tone:$('#tone').value,mic:$('#mic').checked,turno:$('#turno').checked,ringVol:+$('#ringVol').value});
+  store.set('s112_settings2',settings);
+  $('#rateVal').textContent=settings.rate.toFixed(2)+'×';$('#gapVal').textContent=(settings.gap/1000).toFixed(1)+' s';
+  if(!settings.turno)clearTimeout(S.nextT);
+  if(settings.mic&&settings.sim==='int')startMic();else if(rec)stopMic();
+  renderTranscript();
+}
+function setSim(m,silent){
+  if(isActive()||S.phase==='ringing'){if(!silent)toast('Termina prima la chiamata in corso');return;}
+  settings.sim=m;store.set('s112_settings2',settings);
+  $$('#simSwitch button').forEach(b=>b.classList.toggle('on',b.dataset.sim===m));
+  document.body.classList.toggle('inter',m==='int');
+  if(!silent){if(m==='int'&&settings.mic)startMic();else if(rec)stopMic();}
+}
+
+function fmt(ms){if(ms==null)return'—';const t=Math.max(0,ms)/1000,m=Math.floor(t/60),s=t-m*60;return String(m).padStart(2,'0')+':'+s.toFixed(1).padStart(4,'0');}
+const sec=ms=>ms==null?'—':(ms/1000).toFixed(1).replace('.',',')+' s';
+
+function setState(txt,cls){const e=$('#tState');e.textContent=txt;e.className='state '+(cls||'');}
+function updBtns(){
+  const act=isActive();
+  $('#bAnswer').disabled=S.phase!=='ringing';
+  $('#bReport').disabled=S.phase!=='answered';
+  $('#bPause').disabled=!act||(!S.playing&&!S.paused)||S.inter;
+  $('#bPause').firstChild.textContent=S.paused?'Riprendi':'Pausa';
+  $('#bRepLine').disabled=!act||S.inter;$('#bRepAll').disabled=!act||S.inter;
+  $('#bAbort').disabled=!(act||S.phase==='ringing');$('#bSave').disabled=S.phase!=='open';
+  $('#bNew').disabled=act||S.phase==='ringing';
+  $('#tRep').textContent=S.rep;
+  $('#simSwitch').classList.toggle('locked',act||S.phase==='ringing');
+  const ring=S.phase==='ringing';$('#ringBanner').classList.toggle('on',ring);$('#tState').style.display=ring?'none':'';
+  if(S.phase==='idle'||S.phase==='done'){}
+  else if(ring){}
+  else if(S.phase==='answered')setState('in linea · premi F10','wait');
+  else if(S.callEnded)setState('chiamata chiusa · completa la scheda','done');
+  else if(S.paused)setState('in pausa','wait');
+  else if(S.playing)setState('chiamante parla','play');
+  else setState(S.inter?'in linea · fai le domande':'audio finito · chiudi la scheda','wait');
+}
+
+/* ---------------- TESTO / DIALOGO ---------------- */
+function renderTranscript(){
+  const box=$('#transcript');
+  if(!S.sc){box.innerHTML='<div class="empty-msg">Nessuna chiamata in corso.</div>';return;}
+  const show=settings.showText||S.done||!synth;
+  if(!show){box.innerHTML='<div class="empty-msg">Testo nascosto durante la chiamata. Compare a scheda salvata, oppure attiva "Mostra testo" nella barra a destra.</div>';return;}
+  if(S.inter){
+    box.innerHTML=S.dlg.length?S.dlg.map(d=>`<p class="${d.who==='op'?'op':'ch'}"><b>${d.who==='op'?'Operatore':'Chiamante'}:</b> ${esc(d.text)}</p>`).join(''):'<div class="empty-msg">Nessuna battuta ancora.</div>';
+    box.scrollTop=box.scrollHeight;return;
+  }
+  box.innerHTML=S.sc.chunks.map((c,i)=>`<p data-i="${i}" class="${(S.playing&&i===S.idx)?'cur':''}">${c}</p>`).join('');
+}
+function hilite(){ if(!S.inter)$$('#transcript p').forEach(p=>p.classList.toggle('cur',S.playing&&+p.dataset.i===S.idx)); }
+
+/* ---------------- VOCE (motore a frasi) ---------------- */
+function stopSpeech(){S.playing=false;clearTimeout(S.gapT);S.utt=null;if(synth&&(synth.speaking||synth.pending))synth.cancel();}
+function speakFrom(i){
+  const busy=!!(synth&&(synth.speaking||synth.pending));
+  stopSpeech();S.idx=Math.max(0,Math.min(i,S.cur.chunks.length-1));S.paused=false;
+  if(!synth){S.playing=false;if(!S.inter&&S.tEnd==null)S.tEnd=performance.now();updBtns();return;}
+  S.playing=true;updBtns();
+  if(busy)setTimeout(nextChunk,120);else nextChunk();
+}
+let ttsUnlocked=false;
+function unlockTTS(){if(ttsUnlocked||!synth)return;ttsUnlocked=true;try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='it-IT';synth.speak(u);}catch(e){}}
+document.addEventListener('click',unlockTTS,{capture:true});
+document.addEventListener('keydown',unlockTTS,{capture:true});
+setInterval(()=>{if(synth&&S.playing&&synth.paused)synth.resume();},1000);
+function ttsDiag(){
+  const el=$('#ttsDiag');if(!el)return;
+  if(!synth){el.innerHTML='<b style="color:#c0352b">Sintesi vocale non disponibile in questo browser.</b> Usa Chrome o Edge.';return;}
+  const all=synth.getVoices(),it=all.filter(v=>/^it/i.test(v.lang));
+  el.innerHTML=`Voci trovate: ${all.length} · italiane: ${it.length}`;
+}
+function testVoice(){
+  if(!synth){ttsDiag();return;}
+  if(synth.speaking||synth.pending)synth.cancel();
+  const u=new SpeechSynthesisUtterance('Prova audio. Se mi senti, la voce funziona.');
+  u.lang='it-IT';const v=curVoice();if(v)u.voice=v;u.rate=settings.rate||1;
+  let started=false;u.onstart=()=>{started=true;$('#ttsDiag').innerHTML+='<br><span style="color:#1f8a4c">▶ la voce è partita</span>';};
+  u.onerror=e=>{$('#ttsDiag').innerHTML+='<br><span style="color:#c0352b">errore: '+(e.error||'sconosciuto')+'</span>';};
+  synth.speak(u);ttsDiag();
+  setTimeout(()=>{if(!started)$('#ttsDiag').innerHTML+='<br><span style="color:#a96a08">la voce non è partita: controlla il volume</span>';},2500);
+}
+function nextChunk(){
+  if(!S.playing)return;
+  if(S.idx>=S.cur.chunks.length){S.playing=false;if(!S.inter&&S.tEnd==null&&!S.done)S.tEnd=performance.now();hilite();updBtns();return;}
+  hilite();
+  const u=new SpeechSynthesisUtterance(S.cur.chunks[S.idx]);
+  u.lang='it-IT';const v=curVoice();if(v)u.voice=v;const pr=(S.cur.pros&&S.cur.pros[S.idx])||{p:1,r:1};u.rate=Math.min(3,Math.max(.5,settings.rate*pr.r));u.pitch=pr.p;
+  const my=S.idx;let fired=false;
+  const fin=()=>{if(fired)return;fired=true;if(S.utt!==u||!S.playing)return;S.lastHeard=my;S.idx=my+1;S.gapT=setTimeout(nextChunk,S.idx>=S.cur.chunks.length?0:(S.inter?Math.min(settings.gap,400):settings.gap));};
+  u.onend=fin;u.onerror=fin;
+  S.utt=u;synth.speak(u);
+}
+function prosFor(n){const P=TONES[S.sc.tone],J=P.j;return Array.from({length:n},()=>({p:Math.min(2,Math.max(.1,P.p*(1+(Math.random()*2-1)*J))),r:P.r*(1+(Math.random()*2-1)*J)}));}
+function say(chunks){ // il chiamante dice queste frasi (modalità interattiva)
+  chunks=chunks.filter(Boolean);if(!chunks.length)return;
+  S.lastAns=chunks;chunks.forEach(c=>S.dlg.push({who:'ch',text:c}));renderTranscript();
+  S.cur={chunks,pros:prosFor(chunks.length)};speakFrom(0);
+}
+
+/* ---------------- SQUILLO ---------------- */
+let AC=null,ringNodes=null,ringTimer=null;
+function audioCtx(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){AC=null;}}if(AC&&AC.state==='suspended')AC.resume();return AC;}
+function ringOn(){
+  const ac=audioCtx();if(!ac)return;ringOff();
+  const g=ac.createGain();g.gain.value=0;g.connect(ac.destination);
+  const o1=ac.createOscillator();o1.frequency.value=425;o1.type='sine';o1.connect(g);o1.start();
+  ringNodes={g,o1};
+  const vol=Math.max(.02,settings.ringVol*.35);
+  const cycle=()=>{const t=ac.currentTime;g.gain.cancelScheduledValues(t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.02);g.gain.setValueAtTime(vol,t+1);g.gain.linearRampToValueAtTime(0,t+1.02);};
+  cycle();ringTimer=setInterval(cycle,5000); // cadenza italiana: 1 s suono, 4 s pausa
+}
+function ringOff(){clearInterval(ringTimer);if(ringNodes){try{ringNodes.g.gain.value=0;ringNodes.o1.stop();ringNodes.g.disconnect();}catch(e){}ringNodes=null;}}
+function click(){const ac=audioCtx();if(!ac)return;const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=900;g.gain.value=.05;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.05);}
+
+/* ---------------- FLUSSO CHIAMATA ---------------- */
+function setFormEnabled(on){
+  $$('#form input, #form textarea').forEach(i=>{if(i.id!=='f_tel')i.disabled=!on;});
+  $('#form').classList.toggle('locked',!on);
+}
+function clearForm(){
+  $$('#form input[type=text]').forEach(i=>i.value='');$$('.f_psap').forEach(c=>c.checked=false);$('#f_cls').value='';fillDet();
+  $('#f_nota').value='';$('#notaCnt').textContent='0/2000';$('#f_alta').checked=false;$('#f_attesa').checked=false;$('#clsIn').value='';
+  $$('.prow').forEach(r=>r.classList.remove('sent','auto'));
+  showCls();renderPsap();locBadge();
+}
+function fillDet(){
+  const g=TREE.find(x=>x.id===$('#f_cls').value),d=$('#f_det');
+  d.innerHTML=g?'<option value=""></option>'+g.d.map(x=>`<option value="${x.id}">${x.n}</option>`).join(''):'<option value=""></option>';
+}
+function incoming(){ // F2: genera una chiamata in arrivo
+  if(isActive()||S.phase==='ringing')return;
+  clearTimeout(S.nextT);
+  saveSettings();
+  S.inter=settings.sim==='int';
+  S.sc=genScenario(S.inter?'real':settings.mode,settings.spell,settings.cat,settings.tone==='casuale'?null:settings.tone);
+  S.cur=S.sc;S.rep=0;S.done=false;S.tEnd=null;S.tLoc=null;S.tRep=null;S.lastHeard=0;S.dlg=[];S.qlog=[];S.asked={};S.lastAns=null;S.inoltro=false;S.tStop=null;S.tInoltro=null;S.callEnded=false;S.tAllerto=null;
+  clearForm();setFormEnabled(false);$('#form').classList.add('needf10');
+  $('#segNum').textContent='—';$('#tDate').textContent='—';$('#tMain').textContent=fmt(0);$('#tAfter').textContent=fmt(0);
+  ['stA','stQ','stI','stE'].forEach(id=>$('#'+id).classList.remove('on'));
+  $('#accBadge').hidden=true;$('#result').innerHTML='<div class="empty-msg">Il telefono squilla: rispondi con <b>F9</b>, poi apri la segnalazione con <b>F10</b>.</div>';
+  renderTranscript();
+  S.phase='ringing';S.tRing=performance.now();ringOn();updBtns();
+  clearInterval(S.tick);S.tick=setInterval(tick,100);
+}
+function tick(){
+  const n=performance.now();
+  if(S.phase==='ringing'){$('#ringSec').textContent=Math.floor((n-S.tRing)/1000)+' s';return;}
+  if(!isActive())return;
+  if(S.tStop){$('#tMain').textContent=fmt(S.tStop-S.t0);return;}
+  $('#tMain').textContent=fmt(n-S.t0);
+  $('#tAfter').textContent=S.inter?(S.tLoc?fmt(S.tLoc-S.t0):'—'):fmt(S.tEnd==null?0:n-S.tEnd);
+}
+function answer(){ // F9
+  if(S.phase!=='ringing'){if(S.phase==='idle'||S.phase==='done')toast('Nessuna chiamata in coda (F2 per generarne una)');return;}
+  ringOff();click();
+  S.phase='answered';S.t0=performance.now();S.tAns=S.t0-S.tRing;
+  $('#result').innerHTML='<div class="empty-msg">Chiamata in corso… apri la segnalazione con <b>F10</b>. Con <b>INVIA</b> il cronometro si ferma.</div>';
+  updBtns();
+  if(S.inter){startMic();S.promptT=setTimeout(()=>{if(isActive()&&!S.qlog.length)say([rnd(['Pronto? Pronto? Mi sente?','Pronto?! C\'è qualcuno?','Pronto... mi sentite?'])]);},6000);}
+  else speakFrom(0);
+}
+function openReport(){ // F10
+  if(S.phase==='ringing'){toast('Prima rispondi alla chiamata (F9)');return;}
+  if(S.phase!=='answered')return;
+  S.phase='open';S.tRep=performance.now();
+  setFormEnabled(true);$('#form').classList.remove('needf10');
+  $('#f_tel').value=S.sc.exp.tel; // CLI importato
+  $('#segNum').textContent=String(26e7+ri(1,99999)).slice(0,9);
+  const d=new Date();$('#tDate').textContent=d.toLocaleDateString('it-IT',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+d.toLocaleTimeString('it-IT');
+  setStatus('A');updBtns();
+  $('#f_com').focus();
+}
+function togglePause(){
+  if(!isActive()||S.inter)return;
+  if(S.paused){speakFrom(S.idx);}
+  else if(S.playing){stopSpeech();S.paused=true;updBtns();hilite();}
+}
+function repLine(){
+  if(!isActive()||S.inter)return;S.rep++;
+  const i=S.playing?S.idx:(S.paused?S.idx:S.lastHeard);
+  speakFrom(i);
+}
+function repAll(){if(!isActive()||S.inter)return;S.rep++;S.tEnd=null;speakFrom(0);}
+function endCall(){$('#form').classList.remove('needf10');clearTimeout(S.promptT);micIdle();stopSpeech();ringOff();clearInterval(S.tick);}
+function abortCall(){
+  if(!(isActive()||S.phase==='ringing'))return;
+  const wasRing=S.phase==='ringing';
+  endCall();S.phase='done';S.done=true;S.paused=false;setFormEnabled(false);setState(wasRing?'chiamata persa':'annullata','');updBtns();
+  $('#result').innerHTML='<div class="empty-msg">Chiamata annullata, non salvata nelle statistiche.</div>';renderTranscript();
+  scheduleNext();
+}
+function scheduleNext(){clearTimeout(S.nextT);if(settings.turno)S.nextT=setTimeout(()=>{if(S.phase==='idle'||S.phase==='done')incoming();},ri(5,15)*1000);}
+
+/* ---------------- INTERATTIVO: domande e risposte ---------------- */
+const QORDER=['desc','comune','via','civico','scala','piano','citofono','nome'];
+const QLAB={fine:'Allerto ente (fine)',rif:'Punto di riferimento?',desc:'Di cosa ha bisogno?',comune:'In che comune?',via:'In che via?',civico:'A che civico?',scala:'Scala?',piano:'Piano?',citofono:'Citofono / interno?',nome:'Nome e cognome?',spell:'Come si scrive?',ripeti:'Può ripetere?',tel:'Numero di telefono?',prov:'Provincia?'};
+const QKEY={Digit1:'desc',Digit2:'comune',Digit3:'via',Digit4:'civico',Digit5:'scala',Digit6:'piano',Digit7:'citofono',Digit8:'nome',Digit9:'spell',Digit0:'ripeti',KeyT:'tel',KeyR:'rif',KeyE:'fine'};
+const QRX=[
+ ['ripeti',/ripet|non ho capito|come ha detto|non ho sentito|non la sento/],
+ ['spell',/come si scrive|lettera per lettera|fa lo spelling|me lo scandisc|compit/],
+ ['tel',/telefono|cellulare|numero di tel|numero da richiamare|richiamar/],
+ ['comune',/comune|citta|paese|in che zona|dove si trova|dove ti trovi|dove siete|dove vi trovate|dove sta/],
+ ['via',/\bvia\b|strada|indirizzo|\bcorso\b|piazza|viale|toponimo/],
+ ['civico',/civico|\bnumero\b(?!\s+di\s+tel)|chilometro|\bkm\b/],
+ ['scala',/\bscala\b|palazzina|isolato|lotto/],
+ ['piano',/\bpiano\b/],
+ ['citofono',/citofono|interno|campanello/],
+ ['rif',/riferimento|cosa c.e vicino|vicino a cosa|davanti a cosa|cosa vede|si trova in casa|in casa o in strada|in strada/],
+ ['nome',/\bnome\b|cognome|chi parla|come si chiama|con chi parlo/],
+ ['desc',/emergenza|di cosa ha bisogno|cosa (e |e' |e)?successo|cosa succede|che succede|mi dica|cosa le serve|di cosa ha/]
+];
+function parseQ(text){
+  const t=' '+strip(text).toLowerCase().replace(/[^a-z0-9' ]/g,' ').replace(/\s+/g,' ')+' ';
+  const f=[];QRX.forEach(([k,rx])=>{if(rx.test(t))f.push(k);});
+  if(f.includes('tel')){const i=f.indexOf('civico');if(i>-1)f.splice(i,1);}
+  if(f.includes('spell')){const i=f.indexOf('nome');if(i>-1)f.splice(i,1);}
+  return f;
+}
+function tonePre(intent,again){
+  const T=S.sc.tone;
+  if(again&&intent!=='ripeti'&&intent!=='spell'){
+    if(T==='alterato')return rnd(['Ve l\'ho già detto!','Ma quante volte lo devo ripetere?']);
+    if(T==='panico')return 'L\'ho detto, l\'ho detto!';
+    return Math.random()<.5?'Gliel\'ho detto prima...':'';
+  }
+  if(T==='affannato'&&Math.random()<.4)return rnd(['Ah...','Ah... ah...']);
+  if(T==='panico'&&Math.random()<.3)return rnd(['Oddio...','Sì, sì...']);
+  if(T==='alterato'&&Math.random()<.2)return rnd(['Ma fate presto!','Insomma...']);
+  return '';
+}
+function answerFor(k){
+  const e=S.sc.exp,sc=S.sc,ref=e.ref,out=e.pl!=='u'||!ref;
+  const civText=sc.civSay;
+  switch(k){
+    case 'desc':{const a=[...sc.descP];if(Math.random()<.3&&!S.asked.comune)a.push(`Sono a ${e.comune}.`);return a;}
+    case 'comune':return [rnd([`${e.comune}.`,`A ${e.comune}.`,`Siamo a ${e.comune}.`])];
+    case 'prov':return [`Provincia di ${PROV[e.prov]}.`];
+    case 'via':
+      if(e.pl==='a')return [`Sono sull'${roadSp(e.via)}.`];
+      if(e.pl==='x')return [`Sono sulla ${roadSp(e.via)}.`];
+      if(e.pl==='i')return [`${e.via}.`,'Sono su un sentiero, in montagna.'];
+      return [rnd([`${e.via}.`,`In ${e.via}.`,`Sto in ${e.via}.`])];
+    case 'civico':
+      if(e.pl==='i')return ['Non c\'è un numero civico, sono in montagna.'];
+      {const a=[sc.isRoad?`Al chilometro ${civText}.`:rnd([`Numero ${civText}.`,`Al civico ${civText}.`,`${cap(civText)}.`])];if(sc.fix){a.push(sc.fix);sc.fix=null;sc.civSay=sc.civSp;}return a;}
+    case 'rif':
+      if(!ref)return [`Sono in strada${e.poi?', '+e.poi.s:''}.`];
+      return [`${ref.scala?'Scala '+ref.scala+', ':''}${ref.piano===0?'piano terra':pianoSp(ref.piano)}, citofono ${ref.cit}.`];
+    case 'scala':
+      if(!ref)return [rnd(['Non sono in un palazzo, ','Ma quale scala? '])+`sono in strada${e.poi?', '+e.poi.s:''}.`];
+      return [ref.scala?`Scala ${ref.scala}.`:'Non c\'è la scala, c\'è un solo portone.'];
+    case 'piano':
+      if(!ref)return [`Sono in strada${e.poi?', '+e.poi.s:''}, non in un palazzo.`];
+      return [ref.piano===0?'Al piano terra.':`Al ${pianoSp(ref.piano)}.`];
+    case 'citofono':
+      if(!ref)return [`Non c'è citofono, sono in strada${e.poi?', '+e.poi.s:''}.`];
+      return [`Sul citofono c'è ${ref.cit}.`];
+    case 'nome':{const a=[rnd([`${e.nome} ${e.cognome}.`,`Mi chiamo ${e.nome} ${e.cognome}.`,`Sono ${e.nome} ${e.cognome}.`])];if(S.sc.tone==='alterato'&&Math.random()<.4)a.unshift('Ma che c\'entra il nome adesso? Va bene...');if(settings.spell)a.push(spellOf(e.cognome)+'.');return a;}
+    case 'spell':return [`${e.cognome}: ${spellOf(e.cognome)}.`];
+    case 'tel':return [`Il mio numero è ${telSpoken(e.tel)}.`];
+  }
+  return [];
+}
+function isAllerto(t){const n=' '+strip(t).toLowerCase().replace(/[^a-z' ]/g,' ').replace(/\s+/g,' ')+' ';return /allert[oaiì]\w*\s+(\S+\s+){0,2}(l'|l )?(ent|soccors|mezz)/.test(n);}
+function fineChiamata(src,heard){
+  if(!S.inter||!isActive()||S.callEnded)return;
+  S.callEnded=true;clearTimeout(S.promptT);
+  if(!S.tStop)S.tStop=performance.now();
+  S.tAllerto=S.tStop;$('#tMain').textContent=fmt(S.tStop-S.t0);
+  S.dlg.push({who:'op',text:heard||'Allerto ente.'});
+  stopSpeech();
+  const bye=rnd({normale:['Va bene, grazie.','Grazie, aspetto.'],affannato:['Grazie... grazie...'],alterato:['Era ora! Fate presto.'],panico:['Grazie, fate presto, vi prego!']}[S.sc.tone]);
+  S.dlg.push({who:'ch',text:bye});renderTranscript();
+  S.cur={chunks:[bye],pros:prosFor(1)};speakFrom(0);
+  micMsg('chiamata chiusa · completa la scheda','');
+  const P=protocol();
+  $('#endDur').textContent=fmt(S.tStop-S.t0);
+  $('#endInfo').innerHTML=`Risposta allo squillo: <b>${sec(S.tAns)}</b><br>Localizzazione corretta: <b>${S.tLoc?fmt(S.tLoc-S.t0):'non ancora'}</b><br>Domande: <b>${P.n}</b> · fuori ordine: <b>${P.inv}</b> · non fatte: <b>${P.missing.length}</b>`;
+  $('#endDlg').classList.add('on');setTimeout(()=>$('#endOk').focus(),0);
+  updBtns();
+}
+function ask(intents,src,heard){
+  if(!S.inter||!isActive()||S.callEnded)return;
+  clearTimeout(S.promptT);
+  const now=performance.now();
+  S.dlg.push({who:'op',text:heard||intents.map(k=>QLAB[k]).join(' ')||'(domanda non riconosciuta)'});
+  if(!intents.length){say([rnd(['Come? Non ho capito.','Cosa? Non la sento bene.','Scusi, cosa mi ha chiesto?'])]);return;}
+  if(intents.includes('ripeti')){S.rep++;if(S.lastAns){S.qlog.push({k:'ripeti',t:now});S.cur={chunks:S.lastAns,pros:prosFor(S.lastAns.length)};S.lastAns.forEach(c=>S.dlg.push({who:'ch',text:c}));renderTranscript();speakFrom(0);}updBtns();return;}
+  const ord=[...new Set(intents)].sort((a,b)=>{const ia=QORDER.indexOf(a),ib=QORDER.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib);});
+  let out=[];
+  ord.forEach(k=>{
+    const again=!!S.asked[k];S.asked[k]=(S.asked[k]||0)+1;S.qlog.push({k,t:now,src});
+    const pre=tonePre(k,again);if(pre)out.push(pre);
+    out.push(...answerFor(k));
+  });
+  // a volte nel panico il chiamante risponde prima con un'urgenza
+  if(S.sc.tone==='panico'&&Math.random()<.2)out.unshift(rnd(['Fate presto!','Vi prego, venite!']));
+  say(out);updBtns();
+}
+function renderQpanel(){
+  $('#qpanel').innerHTML=QORDER.concat(['rif','spell','tel','ripeti','fine']).map(k=>{
+    const code=Object.keys(QKEY).find(c=>QKEY[c]===k);const key=code?code.replace('Digit','').replace('Key',''):'';
+    return `<button type="button" class="qb" data-q="${k}"><span>${QLAB[k]}</span><kbd>Alt+${key}</kbd></button>`;}).join('');
+  $$('#qpanel .qb').forEach(b=>b.onclick=()=>b.dataset.q==='fine'?fineChiamata('tasto','Allerto ente.'):ask([b.dataset.q],'tasto'));
+}
+
+/* ---------------- RICONOSCIMENTO VOCALE ---------------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition||null;
+let rec=null,recOn=false,micStream=null,micAsking=false;
+function micMsg(t,cls){$('#micState').innerHTML=t;$('#micState').className='micst '+(cls||'');}
+function startMic(){ // un solo riconoscitore che resta acceso tra una chiamata e l'altra
+  if(!settings.mic||settings.sim!=='int'){micMsg(settings.mic?'microfono in pausa (modalità standard)':'microfono spento','');return;}
+  if(!SR){micMsg('riconoscimento vocale non disponibile: usa Chrome o Edge','err');return;}
+  if(rec&&recOn){micMsg(isActive()?'🎙 in ascolto':'🎙 pronto (in attesa di chiamata)','on');return;}
+  // tengo aperto un flusso del microfono per tutta la sessione: il permesso si chiede una sola volta
+  if(!micStream&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&!micAsking){
+    micAsking=true;micMsg('consenti il microfono nel riquadro di Chrome…','');
+    navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}).then(st=>{micStream=st;micAsking=false;startMic();}).catch(err=>{micAsking=false;micMsg('microfono non consentito ('+(err.name||'errore')+'): usa i tasti Alt oppure avvia con "Avvia NUE112@HOME"','err');});
+    return;
+  }
+  if(micAsking)return;
+  try{
+    rec=new SR();rec.lang='it-IT';rec.continuous=true;rec.interimResults=true;
+    rec.onresult=ev=>{
+      if(!(S.inter&&isActive()))return; // fuori chiamata si ignora tutto
+      for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];const txt=r[0].transcript;
+        if(!r.isFinal){micMsg('🎙 '+esc(txt),'on');if(S.playing&&txt.trim().split(' ').length>=2)stopSpeech();continue;}
+        micMsg('🎙 in ascolto','on');if(isAllerto(txt)){fineChiamata('voce',txt.trim());continue;}ask(parseQ(txt),'voce',txt.trim());}
+    };
+    rec.onerror=ev=>{if(ev.error==='not-allowed'||ev.error==='service-not-allowed'){recOn=false;micMsg('microfono bloccato dal browser: usa il file in locale o localhost (vedi Istruzioni) oppure i tasti Alt+1…0','err');}
+      else if(ev.error==='no-speech'||ev.error==='aborted'){} else micMsg('errore microfono: '+ev.error,'err');};
+    rec.onend=()=>{if(recOn&&settings.mic&&settings.sim==='int'){setTimeout(()=>{try{rec.start();}catch(e){}},250);}};
+    recOn=true;rec.start();micMsg(isActive()?'🎙 in ascolto':'🎙 pronto (in attesa di chiamata)','on');
+  }catch(e){micMsg('impossibile avviare il microfono: '+e.message,'err');}
+}
+function stopMic(){recOn=false;if(rec){try{rec.abort();}catch(e){}rec=null;}micMsg(settings.mic?'microfono in pausa':'microfono spento','');}
+function micIdle(){if(rec&&recOn)micMsg('🎙 pronto (in attesa di chiamata)','on');}
+
+/* ---------------- QUALITÀ LOCALIZZAZIONE + STATO ---------------- */
+function locBadge(){
+  const c=$('#f_com').value.trim(),v=$('#f_via').value.trim(),n=$('#f_civ').value.trim();
+  let q=0;if(c)q=1;if(c&&v)q=2;if(c&&v&&n)q=3;
+  const b=$('#locQ');b.className='locq q'+q;b.title=['Localizzazione non determinata','Localizzazione insufficiente (solo comune)','Localizzazione sufficiente (comune e via)','Localizzazione buona (civico)'][q];
+  // tempo alla localizzazione corretta
+  if(S.sc&&S.tLoc==null&&isActive()){const e=S.sc.exp;const okC=alnum(c)===alnum(e.comune);const sv=street(v),ev=street(e.via);const okV=sv.core===ev.core;const okN=e.civ?civNorm(n)===alnum(e.civ):true;if(okC&&okV&&okN)S.tLoc=performance.now();}
+}
+function setStatus(k){const order='AQIE';const n=order.indexOf(k);['stA','stQ','stI','stE'].forEach((id,i)=>$('#'+id).classList.toggle('on',i===n));S.status=k;}
+function refreshStatus(){
+  if(S.phase!=='open')return;
+  if(S.inoltro){setStatus('I');return;}
+  const q=$('#f_com').value.trim()&&$('#f_via').value.trim()&&$('#f_det').value;
+  setStatus(q?'Q':'A');
+}
+function invia(){
+  if(S.phase!=='open'){toast('Apri prima la segnalazione (F10)');return;}
+  const sel=$$('.f_psap').filter(c=>c.checked);
+  if(!sel.length){toast('Seleziona almeno un PSAP');return;}
+  if(!$('#f_det').value||!$('#f_com').value.trim()){toast('Prima qualifica la segnalazione: indirizzo e classificazione');return;}
+  sel.forEach(c=>c.closest('.prow').classList.add('sent'));if(!S.tStop){S.tStop=performance.now();$('#tMain').textContent=fmt(S.tStop-S.t0);}S.inoltro=true;S.tInoltro=S.tInoltro||S.tStop;setStatus('I');toast('Scheda contatto inviata: '+sel.map(c=>PSN[c.value]).join(', '));
+}
+
+/* ---------------- CORREZIONE ---------------- */
+function check(){
+  const e=S.sc.exp,R=[];
+  const add=(id,label,exp,got,ok,note)=>R.push({id,label,exp,got,ok,note:note||''});
+  const near=(a,b)=>{const d=lev(alnum(a),alnum(b));return d>0&&d<=2?'errore di battitura':'';};
+  const v=id=>$('#'+id).value.trim();
+  {const g=v('f_cognome');const ok=alnum(g)===alnum(e.cognome);add('cognome','Cognome',e.cognome.toUpperCase(),g,ok,ok?'':near(g,e.cognome));}
+  {const g=v('f_nome');const ok=alnum(g)===alnum(e.nome);add('nome','Nome',e.nome.toUpperCase(),g,ok,ok?'':near(g,e.nome));}
+  {const g=v('f_com');const ok=alnum(g)===alnum(e.comune);add('comune','Comune',e.comune.toUpperCase(),g,ok,ok?'':near(g,e.comune));}
+  {const g=v('f_via');const ex=street(e.via),gt=street(g);let ok=gt.core===ex.core&&(!gt.type||gt.type===ex.type);
+   let note='';if(gt.core===ex.core&&gt.type&&gt.type!==ex.type)note='tipo di strada sbagliato';else if(!ok)note=near(gt.core,ex.core);
+   add('via','Via',e.via.toUpperCase(),g,ok,note);}
+  {const g=v('f_civ');const isKm=e.pl==='a'||e.pl==='x';add('civ',isKm?'Civico / km':'Civico',e.civ?(isKm?'KM ':'')+e.civ:'(nessuno)',g,civNorm(g)===alnum(e.civ));}
+  {const g=v('f_ref');
+   if(e.ref){const t=toks(g),J=alnum(g),miss=[];
+     if(e.ref.scala&&!t.includes(e.ref.scala))miss.push('scala');
+     const pOk=e.ref.piano===0?['PT','T','0','TERRA'].some(x=>t.includes(x))||/PIANOTERRA/.test(J):t.includes(String(e.ref.piano));
+     if(!pOk)miss.push('piano');
+     if(!J.includes(alnum(e.ref.cit)))miss.push('citofono');
+     add('ref','Riferimento',e.refText,g,miss.length===0,miss.length?'manca/errato: '+miss.join(', '):'');
+   }else{const miss=[];if(!toks(g).includes('STRADA')&&!alnum(g).includes('STRADA'))miss.push('STRADA');if(e.poi&&!poiOk(g,e.poi))miss.push('punto di riferimento ('+e.poi.t+')');
+     add('ref','Riferimento',e.refText,g,miss.length===0,miss.length?'manca: '+miss.join(', '):'');}
+  }
+  {const g=$('#f_cls').value;const eg=TREE.find(x=>x.id===e.grp);const gg=TREE.find(x=>x.id===g);add('cls','Classificazione',eg.c,gg?gg.c:'',g===e.grp);}
+  {const g=$('#f_det').value;const ed=DETS.find(x=>x.id===e.det);const gd=DETS.find(x=>x.id===g);add('det','Dettaglio',ed.n,gd?gd.n:'',g===e.det);}
+  if(settings.psapOn){
+    const sel=$$('.f_psap').filter(c=>c.checked).map(c=>c.value);
+    const groups=e.psap.map(x=>x.split('|'));
+    const ok=groups.every(gr=>gr.some(x=>sel.includes(x)))&&S.inoltro;
+    const need=new Set(groups.flat());
+    const extra=sel.filter(x=>!need.has(x));
+    const expTxt=groups.map(gr=>gr.map(x=>PSN[x]).join(' o ')).join(' + ')+' (inviata)';
+    add('psap','PSAP',expTxt,sel.map(x=>PSN[x]).join(', ')+(S.inoltro?' · inviata':' · NON inviata'),ok,(!S.inoltro?'premi INVIA per inoltrare la scheda':'')+(ok&&extra.length?'in più: '+extra.map(x=>PSN[x]).join(', '):''));
+  }
+  return R;
+}
+function protocol(){ // valutazione ordine domande (interattivo)
+  const firsts=[];S.qlog.forEach(q=>{if(QORDER.includes(q.k)&&!firsts.includes(q.k))firsts.push(q.k);});
+  let inv=0;for(let i=1;i<firsts.length;i++){if(QORDER.indexOf(firsts[i])<QORDER.indexOf(firsts[i-1]))inv++;}
+  const missing=QORDER.filter(k=>!firsts.includes(k));
+  return{firsts,inv,missing,n:S.qlog.length};
+}
+
+function save(){
+  if(S.phase!=='open')return;
+  const tNow=S.tStop||performance.now(); // il tempo si ferma all'INVIA della scheda contatto
+  const total=tNow-S.t0;
+  const after=S.tEnd==null?0:Math.max(0,tNow-S.tEnd);
+  endCall();S.phase='done';S.done=true;S.paused=false;setFormEnabled(false);
+  $('#tMain').textContent=fmt(total);
+  const R=check();const corr=R.filter(r=>r.ok).length;const acc=Math.round(corr/R.length*100);
+  updBtns();
+  const P=S.inter?protocol():null;
+  const recd={ts:Date.now(),sim:S.inter?'int':'std',mode:S.inter?'int':settings.mode,rate:settings.rate,total:Math.round(total),after:Math.round(after),acc,corr,n:R.length,rep:S.rep,tone:S.sc.tone,err:R.filter(r=>!r.ok).map(r=>r.id),audioDone:!S.inter&&S.tEnd!=null,
+    ans:Math.round(S.tAns||0),allerto:S.tAllerto?Math.round(S.tAllerto-S.t0):null,f10:S.tRep?Math.round(S.tRep-S.t0):null,loc:S.tLoc?Math.round(S.tLoc-S.t0):null,inoltro:S.inoltro,q:P?P.n:null,inv:P?P.inv:null,miss:P?P.missing.length:null};
+  const all=store.get('s112_sessions',[]);all.push(recd);if(all.length>1000)all.splice(0,all.length-1000);store.set('s112_sessions',all);
+  showResult(R,recd,all,P);renderTranscript();
+  resetScheda();
+  scheduleNext();
+}
+function resetScheda(){ // Salva ed esci: scheda pulita, pronta per una nuova chiamata
+  clearForm();setFormEnabled(false);
+  $('#tMain').textContent=fmt(0);$('#tAfter').textContent=fmt(0);$('#segNum').textContent='—';$('#tDate').textContent='—';
+  ['stA','stQ','stI','stE'].forEach(id=>$('#'+id).classList.remove('on'));
+  setState('pronto · F2 per una nuova chiamata','');
+}
+
+function esc(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function showResult(R,rec,all,P){
+  const same=all.filter(x=>(x.sim||'std')===rec.sim);
+  const perfect=same.filter(x=>x.acc===100);
+  const best=perfect.length?Math.min(...perfect.map(x=>x.total)):null;
+  const isBest=rec.acc===100&&best===rec.total&&perfect.length>1;
+  const box=$('#result');
+  const proto=P?`<div class="proto"><b>Ordine delle domande</b> (protocollo: ${QORDER.map(k=>QLAB[k]).join(' → ')})<div class="chips2">${
+    P.firsts.map((k,i)=>{const bad=i>0&&QORDER.indexOf(k)<QORDER.indexOf(P.firsts[i-1]);return `<span class="qc ${bad?'bad':''}">${i+1}. ${QLAB[k]}</span>`;}).join('')}${
+    P.missing.map(k=>`<span class="qc miss">non chiesto: ${QLAB[k]}</span>`).join('')}</div>
+    <div class="muted" style="margin-top:4px">${P.inv?P.inv+' domand'+(P.inv>1?'e':'a')+' fuori ordine':'Ordine rispettato'} · ${P.n} domande in totale · ${rec.rep} ripetizioni chieste</div></div>`:'';
+  box.innerHTML=`<div class="kpis">
+   <div class="kpi"><b class="${rec.acc===100?'ok':rec.acc>=80?'wn':'ko'}">${rec.acc}%</b><span>accuratezza (${rec.corr}/${rec.n})</span></div>
+   <div class="kpi"><b>${sec(rec.ans)}</b><span>risposta (squillo → F9)</span></div>
+   <div class="kpi"><b>${sec(rec.f10)}</b><span>F9 → F10</span></div>
+   <div class="kpi"><b>${rec.loc!=null?fmt(rec.loc):'—'}</b><span>localizzazione corretta</span></div>
+   <div class="kpi"><b>${fmt(rec.total)}</b><span>${rec.allerto!=null?'durata (fino ad allerto ente)':'durata (fino a INVIA)'}</span></div>
+   ${rec.sim==='std'?`<div class="kpi"><b>${rec.audioDone?fmt(rec.after):'—'}</b><span>dopo fine audio</span></div>`:''}
+   <div class="kpi"><b>${rec.inoltro?'Sì':'No'}</b><span>scheda inoltrata</span></div>
+   <div class="kpi"><b>${TONES[rec.tone]?TONES[rec.tone].l:'—'}</b><span>tono chiamante</span></div>
+   <div class="kpi"><b>${best!=null?fmt(best):'—'}</b><span>record al 100% ${isBest?'· <b class="ok">nuovo!</b>':''}</span></div>
+  </div>${proto}
+  <table><thead><tr><th>Campo</th><th>Atteso</th><th>Inserito</th><th></th></tr></thead><tbody>
+  ${R.map(r=>`<tr class="${r.ok?'':'bad'}"><td>${r.label}</td><td>${esc(r.exp)}</td><td>${esc(r.got)||'<span class="muted">vuoto</span>'}</td><td>${r.ok?'<span class="ok">✓</span>':'<span class="ko">✗</span>'} <span class="muted" style="font-size:12px">${esc(r.note)}</span></td></tr>`).join('')}
+  </tbody></table>
+  <button class="btn" id="bNew2">Prossima chiamata (F2)</button>${settings.turno?' <span class="muted">Turno continuo: la prossima chiamata arriva da sola tra pochi secondi.</span>':''}`;
+  $('#accBadge').hidden=false;$('#accBadge').textContent=rec.acc+'%';$('#accBadge').style.background=rec.acc===100?'#2f8a3d':rec.acc>=80?'#b07a12':'#c0352b';openTab('esito');
+  $('#bNew2').onclick=incoming;
+}
+
+/* ---------------- STATISTICHE ---------------- */
+const FLAB={tel:'Telefono',cognome:'Cognome',nome:'Nome',via:'Via',civ:'Civico',comune:'Comune',prov:'Provincia',ref:'Riferimento',cls:'Classificazione',det:'Dettaglio',psap:'PSAP'};
+const MLAB={dict:'Std · dettatura',real:'Std · realistica',int:'Interattivo'};
+const avg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+function renderStats(){
+  const all=store.get('s112_sessions',[]);
+  if(!all.length){$('#sKpi').innerHTML='<span class="muted">Nessuna prova ancora.</span>';$('#sTrend').textContent='';$('#sFields').innerHTML='';$('#sTable').innerHTML='';return;}
+  const perf=all.filter(x=>x.acc===100);
+  const ans=all.filter(x=>x.ans).map(x=>x.ans),loc=all.filter(x=>x.loc!=null).map(x=>x.loc);
+  const kp=[
+    [all.length,'prove'],
+    [Math.round(avg(all.map(x=>x.acc)))+'%','accuratezza media'],
+    [Math.round(perf.length/all.length*100)+'%','schede perfette'],
+    [ans.length?sec(avg(ans)):'—','risposta media'],
+    [loc.length?fmt(avg(loc)):'—','localizzazione media'],
+    [fmt(avg(all.map(x=>x.total))),'durata media'],
+    [perf.length?fmt(Math.min(...perf.map(x=>x.total))):'—','miglior tempo al 100%']
+  ];
+  $('#sKpi').innerHTML=kp.map(k=>`<div class="kpi"><b>${k[0]}</b><span>${k[1]}</span></div>`).join('');
+  let trend='';
+  ['dict','real','int'].forEach(m=>{const a=all.filter(x=>x.mode===m);if(a.length>=10){const last=a.slice(-5),prev=a.slice(-10,-5);
+    const dt=avg(last.map(x=>x.total))-avg(prev.map(x=>x.total)),da=avg(last.map(x=>x.acc))-avg(prev.map(x=>x.acc));
+    trend+=`<div>${MLAB[m]} – ultime 5 prove rispetto alle 5 precedenti: durata ${dt<=0?'<span class="ok">−'+fmt(-dt)+'</span>':'<span class="ko">+'+fmt(dt)+'</span>'}, accuratezza ${da>=0?'<span class="ok">+'+Math.round(da)+' pt</span>':'<span class="ko">'+Math.round(da)+' pt</span>'}</div>`;}});
+  const byT=Object.keys(TONES).map(t=>{const a=all.filter(x=>x.tone===t);return a.length?`${TONES[t].l}: ${a.length} prove, ${Math.round(avg(a.map(x=>x.acc)))}% acc., ${fmt(avg(a.map(x=>x.total)))} medio`:null;}).filter(Boolean);
+  if(byT.length)trend+='<div style="margin-top:6px">Per tono · '+byT.join(' · ')+'</div>';
+  const ia=all.filter(x=>x.mode==='int'&&x.inv!=null);if(ia.length)trend+=`<div style="margin-top:6px">Interattivo · domande fuori ordine in media: ${avg(ia.map(x=>x.inv)).toFixed(1)} · domande non fatte in media: ${avg(ia.map(x=>x.miss)).toFixed(1)}</div>`;
+  $('#sTrend').innerHTML=trend||'Il confronto tra le ultime prove compare dopo 10 prove nella stessa modalità.';
+  const cnt={};all.forEach(x=>x.err.forEach(f=>cnt[f]=(cnt[f]||0)+1));
+  const rows=Object.entries(cnt).sort((a,b)=>b[1]-a[1]);
+  $('#sFields').innerHTML=rows.length?`<table><thead><tr><th>Campo</th><th>Errori</th><th>% delle prove</th></tr></thead><tbody>${rows.map(([f,n])=>`<tr><td>${FLAB[f]||f}</td><td class="num">${n}</td><td class="num">${Math.round(n/all.length*100)}%</td></tr>`).join('')}</tbody></table>`:'<span class="ok">Nessun errore registrato.</span>';
+  const last=all.slice(-25).reverse();
+  $('#sTable').innerHTML=`<table><thead><tr><th>Data</th><th>Modalità</th><th>Tono</th><th>Risposta</th><th>Localizz.</th><th>Durata</th><th>Acc.</th><th>Rip.</th><th>Errori</th></tr></thead><tbody>
+   ${last.map(x=>{const d=new Date(x.ts);return`<tr><td>${d.toLocaleDateString('it-IT')} ${d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}</td><td>${MLAB[x.mode]||x.mode}</td><td>${x.tone&&TONES[x.tone]?TONES[x.tone].l:'—'}</td><td class="num">${x.ans?sec(x.ans):'—'}</td><td class="num">${x.loc!=null?fmt(x.loc):'—'}</td><td class="num">${fmt(x.total)}</td><td class="num ${x.acc===100?'ok':x.acc>=80?'wn':'ko'}">${x.acc}%</td><td class="num">${x.rep}</td><td>${x.err.map(f=>FLAB[f]||f).join(', ')}</td></tr>`;}).join('')}
+  </tbody></table>`;
+}
+function csv(){
+  const all=store.get('s112_sessions',[]);
+  const lines=['data;modalita;tono;velocita;risposta_s;localizzazione_s;durata_s;dopo_audio_s;accuratezza;ripetizioni;domande;fuori_ordine;errori'];
+  const n=v=>v==null?'':(v/1000).toFixed(1).replace('.',',');
+  all.forEach(x=>lines.push([new Date(x.ts).toLocaleString('it-IT'),MLAB[x.mode]||x.mode,x.tone||'',x.rate,n(x.ans),n(x.loc),n(x.total),x.audioDone?n(x.after):'',x.acc,x.rep,x.q??'',x.inv??'',x.err.join(' ')].join(';')));
+  return lines.join('\n');
+}
+
+/* ---------------- UI ---------------- */
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('on'),2200);}
+function confirmBox(msg,yes){$('#dlgMsg').textContent=msg;$('#dlg').classList.add('on');$('#dlgYes').onclick=()=>{$('#dlg').classList.remove('on');yes();};$('#dlgNo').onclick=()=>$('#dlg').classList.remove('on');}
+
+function openTab(v){$$('nav.btabs button').forEach(x=>x.classList.toggle('on',x.dataset.v===v));$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));if(v==='stats')renderStats();if(v==='testo')renderTranscript();}
+$$('nav.btabs button').forEach(b=>b.onclick=()=>openTab(b.dataset.v));
+const clsSel=$('#f_cls');clsSel.innerHTML='<option value=""></option>'+TREE.map(c=>`<option value="${c.id}">${c.c}</option>`).join('');
+$('#cat').innerHTML='<option value="">Tutte le classificazioni</option>'+TREE.filter(g=>g.d.some(d=>d.desc)).map(g=>`<option value="${g.id}">${g.c}</option>`).join('');
+applySettings();
+['#mode','#cat','#tone','#rate','#gap','#voice','#spell','#psapOn','#showText','#mic','#turno','#ringVol'].forEach(s=>$(s).addEventListener('input',saveSettings));
+$$('#simSwitch button').forEach(b=>b.onclick=()=>setSim(b.dataset.sim));
+$('#bNew').onclick=incoming;$('#bAnswer').onclick=answer;$('#bReport').onclick=openReport;$('#bTest').onclick=testVoice;$('#bAbort').onclick=abortCall;$('#bPause').onclick=togglePause;$('#bRepLine').onclick=repLine;$('#bRepAll').onclick=repAll;$('#bSave').onclick=save;$('#bInvia').onclick=invia;
+$('#endOk').onclick=()=>{$('#endDlg').classList.remove('on');$('#clsIn').focus();};
+$('#bRingTest').onclick=()=>{ringOn();setTimeout(ringOff,1200);};
+$('#bCsv').onclick=async()=>{try{await navigator.clipboard.writeText(csv());toast('CSV copiato: incollalo in Excel');}catch(e){toast('Copia non consentita da questo browser');}};
+$('#bReset').onclick=()=>confirmBox('Cancellare tutte le statistiche salvate in questo browser?',()=>{store.set('s112_sessions',[]);renderStats();toast('Statistiche azzerate');});
+document.addEventListener('keydown',e=>{
+  if($('#endDlg').classList.contains('on')&&(e.key==='Enter'||e.key==='Escape')){e.preventDefault();$('#endDlg').classList.remove('on');$('#clsIn').focus();return;}
+  if(e.altKey&&e.code==='KeyE'&&S.inter&&isActive()){e.preventDefault();fineChiamata('tasto','Allerto ente.');return;}
+  if(e.altKey&&QKEY[e.code]&&S.inter&&isActive()){e.preventDefault();ask([QKEY[e.code]],'tasto');return;}
+  if(e.key==='F4'){e.preventDefault();if(S.phase==='open')openCls();return;}
+  if(e.key==='Escape'&&$('#clsModal').classList.contains('on')){e.preventDefault();closeCls();return;}
+  if(e.key==='Escape'&&$('#clsDrop').classList.contains('on')){e.preventDefault();$('#clsDrop').classList.remove('on');return;}
+  if(e.key==='F2'){e.preventDefault();incoming();}
+  else if(e.key==='F9'){e.preventDefault();answer();}
+  else if(e.key==='F10'){e.preventDefault();openReport();}
+  else if(e.key==='F8'){e.preventDefault();repLine();}
+  else if(e.key==='F7'){e.preventDefault();togglePause();}
+  else if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();save();}
+});
+if(!synth){$('#noTts').classList.add('on');ttsDiag();}
+else{loadVoices();if('onvoiceschanged' in synth)synth.onvoiceschanged=loadVoices;setTimeout(loadVoices,500);}
+['#f_com','#f_via','#f_civ'].forEach(s=>$(s).addEventListener('input',()=>{locBadge();refreshStatus();}));
+
+
+/* ---------- suggerimenti comune / via mentre si scrive ---------- */
+const COMUNI_ALL=[...new Set([].concat(COMUNI.map(c=>c[0]),Object.values(PL).flat().map(x=>x[1]),
+"Acerra,Afragola,Agerola,Anacapri,Arzano,Bacoli,Barano d'Ischia,Boscoreale,Boscotrecase,Brusciano,Caivano,Calvizzano,Camposano,Capri,Carbonara di Nola,Cardito,Casalnuovo di Napoli,Casamarciano,Casamicciola Terme,Casandrino,Casavatore,Casola di Napoli,Casoria,Castellammare di Stabia,Castello di Cisterna,Cercola,Cicciano,Cimitile,Comiziano,Crispano,Ercolano,Forio,Frattamaggiore,Frattaminore,Giugliano in Campania,Gragnano,Grumo Nevano,Ischia,Lacco Ameno,Lettere,Liveri,Marano di Napoli,Mariglianella,Marigliano,Massa di Somma,Massa Lubrense,Melito di Napoli,Meta,Monte di Procida,Mugnano di Napoli,Napoli,Nola,Ottaviano,Palma Campania,Piano di Sorrento,Pimonte,Poggiomarino,Pollena Trocchia,Pomigliano d'Arco,Pompei,Portici,Pozzuoli,Procida,Qualiano,Quarto,Roccarainola,San Gennaro Vesuviano,San Giorgio a Cremano,San Giuseppe Vesuviano,San Paolo Bel Sito,San Sebastiano al Vesuvio,San Vitaliano,Santa Maria la Carità,Sant'Agnello,Sant'Anastasia,Sant'Antimo,Sant'Antonio Abate,Saviano,Scisciano,Serrara Fontana,Somma Vesuviana,Sorrento,Striano,Terzigno,Torre Annunziata,Torre del Greco,Trecase,Tufino,Vico Equense,Villaricca,Visciano,Volla,Salerno,Sarno,Nocera Inferiore,Nocera Superiore,Pagani,Angri,Scafati,Sant'Egidio del Monte Albino,Corbara,San Marzano sul Sarno,San Valentino Torio,Siano,Bracigliano,Castel San Giorgio,Roccapiemonte,Mercato San Severino,Fisciano,Baronissi,Pellezzano,Cava de' Tirreni,Vietri sul Mare,Cetara,Maiori,Minori,Amalfi,Atrani,Ravello,Positano,Praiano,Conca dei Marini,Furore,Tramonti,Scala,Pontecagnano Faiano,Bellizzi,Battipaglia,Eboli,Montecorvino Rovella,Montecorvino Pugliano,Giffoni Valle Piana,Giffoni Sei Casali,Capaccio Paestum,Agropoli,Castellabate,Vallo della Lucania,Sapri,Sala Consilina,Polla,Teggiano,Buccino,Campagna,Oliveto Citra,Contursi Terme,Caserta,Aversa,Marcianise,Maddaloni,Santa Maria Capua Vetere,Capua,San Nicola la Strada,Casagiove,San Prisco,Curti,Recale,Macerata Campania,Portico di Caserta,Casapulla,San Marco Evangelista,Sessa Aurunca,Mondragone,Castel Volturno,Villa Literno,Casal di Principe,Trentola Ducenta,Lusciano,Gricignano di Aversa,Orta di Atella,Succivo,Sant'Arpino,Teverola,Carinaro,Cesa,Frignano,San Cipriano d'Aversa,Piedimonte Matese,Teano,Sparanise,Pignataro Maggiore,Santa Maria a Vico,Arienzo,San Felice a Cancello,Cervino,Valle di Maddaloni,Avellino,Ariano Irpino,Atripalda,Mercogliano,Monteforte Irpino,Montoro,Solofra,Serino,Mirabella Eclano,Grottaminarda,Lioni,Sant'Angelo dei Lombardi,Montella,Bagnoli Irpino,Baiano,Avella,Mugnano del Cardinale,Lauro,Forino,Cervinara,Altavilla Irpina,Calitri,Benevento,Montesarchio,Sant'Agata de' Goti,Airola,Telese Terme,San Giorgio del Sannio,Cerreto Sannita,Guardia Sanframondi,San Bartolomeo in Galdo,Bonea,Apice,Paduli".split(',')))].sort((a,b)=>a.localeCompare(b,'it'));
+const VIE_ALL=[...new Set([].concat(VIE,Object.values(PL).flat().map(x=>x[0]),
+"Via Umberto I,Corso Umberto I,Via Vittorio Emanuele III,Via XX Settembre,Via IV Novembre,Via Cesare Battisti,Via Nazario Sauro,Via Guglielmo Marconi,Via Alessandro Volta,Via Galileo Galilei,Via Giuseppe Verdi,Via Giacomo Puccini,Via Giovanni Pascoli,Via Petrarca,Via Silvio Pellico,Via Duomo,Via Municipio,Via San Giovanni,Via San Rocco,Via Santa Maria,Via Madonna delle Grazie,Via Circumvallazione,Via Stazione,Via Provinciale,Via Pompei,Via Salerno,Via Caserta,Via Avellino,Via Nola,Via Sarno,Via Nocera,Via Vesuvio,Via dei Mille,Viale Italia,Piazza Dante,Piazza Vittorio Emanuele,Piazza Umberto I,Via Roma Vecchia,Via Rossi,Via Mameli,Via Togliatti,Via Gramsci,Via Don Minzoni,Via Falcone,Via Borsellino,Via Sant'Antonio,Via San Giuseppe,Via San Michele,Via Santa Chiara,Via Toledo,Via Foria,Via Posillipo,Via Caracciolo,Via Chiaia,Via dei Tribunali,Corso Secondigliano,Via Epomeo,Via Domenico Fontana,Via Pietro Castellino,Via Belvedere,Via Cimarosa,Via Merliani,Via Kerbaker,Via Alvino,Via Bernini,Via Morghen,Via Annunziata,Via Lavinaio,Via Marina,Via Nuova Poggioreale,Via Argine,Via delle Repubbliche Marinare,Via Atripalda,Via Irno,Corso Vittorio Emanuele II".split(',')))].sort((a,b)=>a.localeCompare(b,'it'));
+function acMatches(list,q){
+  const n=strip(q).replace(/[^A-Z0-9 ']/g,'').trim();if(!n)return [];
+  const core=v=>strip(v).replace(/^(VIA|VIALE|CORSO|PIAZZA|LUNGOMARE|LOCALITA|STRADA STATALE|STRADA PROVINCIALE|AUTOSTRADA)\s+/,'');
+  const pre=list.filter(x=>strip(x).startsWith(n));
+  const rank=x=>/^VIA /.test(strip(x))?0:/^CORSO /.test(strip(x))?1:2;
+  const preCore=list.filter(x=>!pre.includes(x)&&core(x).startsWith(n)).sort((x,y)=>rank(x)-rank(y));
+  const cont=list.filter(x=>!pre.includes(x)&&!preCore.includes(x)&&strip(x).includes(n));
+  return pre.concat(preCore,cont).slice(0,12);
+}
+function attachAC(inp,drop,list,next){
+  let hi=0,items=[];
+  const render=()=>{drop.innerHTML=items.map((x,i)=>`<div data-v="${esc(x)}" class="${i===hi?'hi':''}">${esc(x)}</div>`).join('');drop.classList.toggle('on',items.length>0);};
+  const accept=v=>{inp.value=v;drop.classList.remove('on');inp.dispatchEvent(new Event('change'));locBadge();refreshStatus();if(next)next.focus();};
+  inp.addEventListener('input',e=>{
+    const typed=inp.value;items=acMatches(list,typed);hi=0;render();
+    const del=e.inputType&&e.inputType.startsWith('delete');
+    // completamento in linea: NAP -> NAP[OLI]
+    if(!del&&items.length&&inp.selectionStart===typed.length){const f=items[0];if(strip(f).startsWith(strip(typed))&&f.length>typed.length){inp.value=typed+f.slice(typed.length);inp.setSelectionRange(typed.length,f.length);}}
+  });
+  inp.addEventListener('keydown',e=>{
+    if(!drop.classList.contains('on'))return;
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();hi=Math.max(0,Math.min(items.length-1,hi+(e.key==='ArrowDown'?1:-1)));render();const h=drop.querySelector('.hi');if(h)h.scrollIntoView({block:'nearest'});return;}
+    if(e.key==='Enter'||e.key==='Tab'){if(items[hi]){e.preventDefault();accept(items[hi]);}return;}
+    if(e.key==='Escape'){e.stopPropagation();drop.classList.remove('on');const t=inp.value.slice(0,inp.selectionStart);if(inp.selectionEnd>inp.selectionStart)inp.value=t;}
+  });
+  inp.addEventListener('blur',()=>setTimeout(()=>drop.classList.remove('on'),150));
+  drop.addEventListener('mousedown',e=>{const d=e.target.closest('[data-v]');if(d){e.preventDefault();accept(d.dataset.v);}});
+}
+attachAC($('#f_com'),$('#acCom'),COMUNI_ALL,$('#f_via'));
+attachAC($('#f_via'),$('#acVia'),VIE_ALL,$('#f_civ'));
+
+/* ---------- PSAP preselezionati dalla classificazione ---------- */
+function preselectPsap(){
+  if(S.inoltro)return;
+  const d=DETS.find(x=>x.id===$('#f_det').value);
+  // tolgo le preselezioni automatiche precedenti, lascio le scelte manuali
+  $$('.prow.auto').forEach(r=>{r.classList.remove('auto');const c=r.querySelector('input');c.checked=false;r.classList.remove('sel');});
+  if(!d||!d.p)return;
+  d.p.forEach(gr=>{const code=gr.split('|')[0];const r=$(`.prow[data-v="${code}"]`);if(!r)return;const c=r.querySelector('input');if(!c.checked){c.checked=true;r.classList.add('sel','auto');}});
+}
+/* ---------- PSAP ---------- */
+const PSAPS=[['118','118','✚'],['CC','CC','★'],['PS','PS','●'],['PSS','PS Stradale','▲'],['VVF','VVF','♨'],['CP','CP','⚓']];
+function renderPsap(){
+  const box=$('#psapList');
+  if(!box.children.length){
+    box.innerHTML=PSAPS.map(([v,l,ic])=>`<label class="prow" data-v="${v}"><span class="ic">${ic}</span><span class="nm">${l}<em>✓ inviata</em></span><span class="rd"></span><input type="checkbox" class="cb f_psap" value="${v}"><span class="bt" aria-hidden="true"><i></i><i class="o"></i></span></label>`).join('')+
+      '<div class="note">Dopo la classificazione i PSAP competenti vengono <b>proposti</b> in automatico: controlla, aggiungi o togli, poi premi <b>INVIA</b> (stato INOLTRATA). Regole indicative, non il PCCT della CUR.</div>';
+    $$('.f_psap').forEach(c=>c.addEventListener('change',()=>{const r=c.closest('.prow');r.classList.toggle('sel',c.checked);r.classList.remove('auto');}));
+  }
+  $$('.prow').forEach(r=>r.classList.toggle('sel',r.querySelector('input').checked));
+}
+
+/* ---------- classificazione: campo con autocompletamento (come da manuale) ---------- */
+const FLAT=DETS.map(d=>({id:d.id,g:d.g.id,t:d.g.c+' '+d.n}));
+function showCls(){
+  const g=TREE.find(x=>x.id===$('#f_cls').value),d=DETS.find(x=>x.id===$('#f_det').value),el=$('#clsIn');
+  el.value=g?(g.c+(d?' '+d.n:'')):'';el.title=el.value;el.classList.toggle('partial',!!g&&!d);
+}
+let A={hi:0,f:[]};
+function dropFill(){
+  const q=$('#clsIn').value;const words=strip(q).split(/\s+/).filter(Boolean);
+  A.f=FLAT.filter(x=>{const t=strip(x.t);return words.every(w=>t.includes(w));});
+  if(A.hi>=A.f.length)A.hi=0;
+  $('#clsDrop').innerHTML=A.f.map((x,i)=>`<div data-id="${x.id}" class="${i===A.hi?'hi':''}">${esc(x.t)}</div>`).join('')||'<div style="color:#999;cursor:default">nessun risultato</div>';
+  $('#clsDrop').classList.add('on');
+}
+function pickFlat(id){const d=DETS.find(x=>x.id===id);if(!d)return;$('#f_cls').value=d.g.id;fillDet();$('#f_det').value=id;$('#clsDrop').classList.remove('on');showCls();preselectPsap();refreshStatus();$('#f_alta').focus();}
+$('#clsIn').addEventListener('input',()=>{A.hi=0;if(!$('#clsIn').value){$('#f_cls').value='';fillDet();refreshStatus();}dropFill();});
+$('#clsIn').addEventListener('keydown',e=>{
+  if(e.key===' '&&!$('#clsIn').value){e.preventDefault();A.hi=0;dropFill();return;}
+  if(!$('#clsDrop').classList.contains('on'))return;
+  if(e.key==='ArrowDown'){e.preventDefault();A.hi=Math.min(A.f.length-1,A.hi+1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();A.hi=Math.max(0,A.hi-1);}
+  else if(e.key==='Enter'){e.preventDefault();if(A.f[A.hi])pickFlat(A.f[A.hi].id);return;}
+  else return;
+  $$('#clsDrop div').forEach((d,i)=>d.classList.toggle('hi',i===A.hi));const h=$('#clsDrop .hi');if(h)h.scrollIntoView({block:'nearest'});
+});
+$('#clsIn').addEventListener('blur',()=>setTimeout(()=>{$('#clsDrop').classList.remove('on');showCls();},150));
+$('#clsDrop').addEventListener('mousedown',e=>{const d=e.target.closest('[data-id]');if(d){e.preventDefault();pickFlat(d.dataset.id);}});
+$('#clsClear').onclick=()=>{if(S.phase!=='open')return;$('#f_cls').value='';fillDet();showCls();preselectPsap();refreshStatus();$('#clsIn').focus();};
+$('#clsWin').onclick=()=>{if(S.phase==='open')openCls();};
+
+/* ---------- classificazione: finestra gerarchica ---------- */
+let M={hiC:0,hiD:0};
+function listFill(listEl,items,q,hiKey){
+  const f=items.filter(x=>strip(x.t).includes(strip(q.trim())));
+  if(M[hiKey]>=f.length)M[hiKey]=0;
+  listEl.innerHTML=f.map((x,i)=>`<div data-id="${x.id}" class="${i===M[hiKey]?'hi':''}">${x.t}</div>`).join('')||'<div style="color:#999;cursor:default">nessun risultato</div>';
+  return f;
+}
+function openCls(){
+  if($('#clsModal').classList.contains('on'))return;
+  $('#clsModal').classList.add('on');
+  const g=TREE.find(x=>x.id===$('#f_cls').value),d=DETS.find(x=>x.id===$('#f_det').value);
+  $('#mCls').value=g?g.c:'';$('#mDet').value=d?d.n:'';$('#mDet').disabled=!g;
+  if(g&&!d){openDetList();setTimeout(()=>$('#mDet').focus(),0);}else{openClsList();setTimeout(()=>{$('#mCls').focus();$('#mCls').select();},0);}
+}
+function closeCls(){$('#clsModal').classList.remove('on');$('#mClsList').classList.remove('on');$('#mDetList').classList.remove('on');showCls();refreshStatus();}
+function openClsList(){M.hiC=0;$('#mDetList').classList.remove('on');$('#mClsList').classList.add('on');M.fc=listFill($('#mClsList'),TREE.map(g=>({id:g.id,t:g.c})),$('#mCls').value===(TREE.find(x=>x.id===$('#f_cls').value)||{}).c?'':$('#mCls').value,'hiC');}
+function openDetList(){const g=TREE.find(x=>x.id===$('#f_cls').value);if(!g)return;M.hiD=0;$('#mClsList').classList.remove('on');$('#mDetList').classList.add('on');M.fd=listFill($('#mDetList'),g.d.map(d=>({id:d.id,t:d.n})),$('#mDet').value===(DETS.find(x=>x.id===$('#f_det').value)||{}).n?'':$('#mDet').value,'hiD');}
+function pickCls(id){const g=TREE.find(x=>x.id===id);if(!g)return;$('#f_cls').value=id;fillDet();$('#mCls').value=g.c;$('#mDet').value='';$('#mDet').disabled=false;$('#mClsList').classList.remove('on');showCls();refreshStatus();openDetList();$('#mDet').focus();}
+function pickDet(id){const d=DETS.find(x=>x.id===id);if(!d)return;$('#f_det').value=id;$('#mDet').value=d.n;preselectPsap();closeCls();$('#f_alta').focus();}
+$('#mClose').onclick=closeCls;
+$('#clsModal').addEventListener('mousedown',e=>{if(e.target.id==='clsModal')closeCls();});
+$('#mCls').addEventListener('focus',openClsList);
+$('#mCls').addEventListener('input',()=>{M.hiC=0;M.fc=listFill($('#mClsList'),TREE.map(g=>({id:g.id,t:g.c})),$('#mCls').value,'hiC');$('#mClsList').classList.add('on');});
+$('#mDet').addEventListener('focus',openDetList);
+$('#mDet').addEventListener('input',()=>{const g=TREE.find(x=>x.id===$('#f_cls').value);if(!g)return;M.hiD=0;M.fd=listFill($('#mDetList'),g.d.map(d=>({id:d.id,t:d.n})),$('#mDet').value,'hiD');$('#mDetList').classList.add('on');});
+function navKeys(e,listKey,hiKey,listEl,pick){
+  const f=M[listKey]||[];
+  if(e.key==='ArrowDown'){e.preventDefault();M[hiKey]=Math.min(f.length-1,M[hiKey]+1);}
+  else if(e.key==='ArrowUp'){e.preventDefault();M[hiKey]=Math.max(0,M[hiKey]-1);}
+  else if(e.key==='Enter'){e.preventDefault();if(f[M[hiKey]])pick(f[M[hiKey]].id);return;}
+  else return;
+  $$('#'+listEl.id+' div').forEach((d,i)=>d.classList.toggle('hi',i===M[hiKey]));
+  const h=listEl.querySelector('.hi');if(h)h.scrollIntoView({block:'nearest'});
+}
+$('#mCls').addEventListener('keydown',e=>navKeys(e,'fc','hiC',$('#mClsList'),pickCls));
+$('#mDet').addEventListener('keydown',e=>navKeys(e,'fd','hiD',$('#mDetList'),pickDet));
+$('#mClsList').addEventListener('mousedown',e=>{const d=e.target.closest('[data-id]');if(d){e.preventDefault();pickCls(d.dataset.id);}});
+$('#mDetList').addEventListener('mousedown',e=>{const d=e.target.closest('[data-id]');if(d){e.preventDefault();pickDet(d.dataset.id);}});
+$('#mClsX').onclick=()=>{$('#f_cls').value='';fillDet();$('#mCls').value='';$('#mDet').value='';$('#mDet').disabled=true;$('#mCls').focus();openClsList();};
+$('#mDetX').onclick=()=>{$('#f_det').value='';$('#mDet').value='';$('#mDet').focus();openDetList();};
+
+/* ---------- varie ---------- */
+$$('[data-clear]').forEach(x=>x.onclick=()=>{if(S.phase!=='open')return;x.dataset.clear.split(',').forEach(id=>$('#'+id).value='');$('#'+x.dataset.clear.split(',')[0]).focus();locBadge();refreshStatus();});
+$('#f_nota').addEventListener('input',()=>$('#notaCnt').textContent=$('#f_nota').value.length+'/2000');
+// solo computer
+if(window.matchMedia&&matchMedia('(hover: none) and (pointer: coarse)').matches)$('#mobileBlock').classList.add('on');
+if(location.protocol==='file:')$('#fileHint').classList.add('on');
+renderPsap();renderQpanel();showCls();locBadge();setFormEnabled(false);
+updBtns();setState('pronto · F2 per una chiamata','');
+})();
+</script>
+</body>
+</html>
