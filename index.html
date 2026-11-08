@@ -355,7 +355,7 @@ body.inter .stdonly{display:none!important}
       <div class="card"><h3>Modalità Interattiva</h3><ul>
         <li>Dopo F9 il chiamante aspetta le tue domande (se taci per qualche secondo dice "Pronto? Mi sente?").</li>
         <li>Protocollo valutato: <b>Di cosa ha bisogno → Comune → Via → Civico → Scala → Piano → Citofono → Nome e cognome</b>. L'esito mostra l'ordine in cui hai chiesto, le domande fuori ordine e quelle non fatte.</li>
-        <li>Domande con i tasti: <b>Alt+1</b> di cosa ha bisogno · <b>Alt+2</b> comune · <b>Alt+3</b> via · <b>Alt+4</b> civico · <b>Alt+5</b> scala · <b>Alt+6</b> piano · <b>Alt+7</b> citofono/interno · <b>Alt+8</b> nome e cognome · <b>Alt+9</b> come si scrive · <b>Alt+0</b> può ripetere · <b>Alt+R</b> punto di riferimento · <b>Alt+T</b> telefono · <b>Alt+E</b> allerto ente. Oppure i pulsanti sotto i PSAP.</li>
+        <li>Domande con i tasti: <b>Alt+1</b> di cosa ha bisogno · <b>Alt+2</b> comune · <b>Alt+3</b> via · <b>Alt+4</b> civico · <b>Alt+5</b> scala · <b>Alt+6</b> piano · <b>Alt+7</b> citofono/interno · <b>Alt+8</b> nome e cognome · <b>Alt+9</b> come si scrive · <b>Alt+0</b> può ripetere · <b>Alt+A</b> la persona è raggiungibile? · <b>Alt+R</b> punto di riferimento · <b>Alt+T</b> telefono · <b>Alt+E</b> allerto ente. Oppure i pulsanti sotto i PSAP.</li>
         <li><b>Fine chiamata</b>: quando dici <b>"allerto ente"</b> (o premi Alt+E) il cronometro si ferma, il chiamante saluta e compare la finestra con la durata. Poi completi la scheda, premi INVIA e Salva ed esci. Se non lo dici, il tempo si ferma all'INVIA.</li>
         <li><b>A voce</b>: in Interattivo il microfono si attiva da solo all'apertura (al primo uso consenti il permesso). Usa le <b>cuffie</b> (con le casse il microfono sente il chiamante). Il riconoscimento capisce le parole chiave (comune, via, civico, scala, piano, citofono, interno, nome, cognome…); se parli mentre il chiamante risponde, lui si interrompe.</li>
         <li><b>Microfono:</b> nella pagina pubblicata su claude.ai il browser lo blocca. Usa il file NUE112@HOME.html in Chrome o Edge. Il microfono resta acceso tra una chiamata e l'altra (ascolta solo durante la chiamata), così il permesso si chiede una volta per apertura della pagina. Aperto come file con doppio clic, Chrome non memorizza il permesso e lo richiede ogni volta che riapri la pagina; per non vederlo più aprilo da <b>http://localhost</b> (vedi sotto), dove il permesso resta salvato.</li>
@@ -498,11 +498,30 @@ const TREE=[
   {n:'Eventi atmosferici rilevanti (neve, vento, pioggia)',p:['VVF'],pl:'u',in:1,desc:["con il vento si sta staccando la copertura del tetto","con la pioggia si è allagato lo scantinato, l'acqua continua a salire"]}]},
  {c:'Soccorso sanitario',d:[
   {n:'Non noto/non identificato',p:['118'],pl:'u',desc:["mi ha chiamato mia zia dicendo che sta male, poi è caduta la linea e non risponde più"]},
-  {n:'Trauma /malore/infortunio con persona accessibile',sp:'trauma, malore, infortunio con persona accessibile',p:['118'],pl:'u',in:1,desc:["mio marito si è sentito male, è pallido e suda tanto","mia madre è caduta dalle scale e non riesce ad alzarsi","mio padre non riesce a parlare bene, ha la bocca storta"]},
-  {n:'Trauma /malore/infortunio con persona non accessibile (abitazione o luogo chiuso)',sp:'trauma, malore, infortunio con persona non accessibile',p:['118','VVF'],pl:'u',in:1,desc:["la vicina anziana vive da sola, non risponde da ieri, la porta è chiusa e si sente la televisione accesa"]},
+  {n:'Trauma /malore/infortunio con persona accessibile',sp:'trauma, malore, infortunio con persona accessibile',p:['118'],pl:'u',in:1,desc:[
+    {t:"mio marito si è sentito male, è pallido e suda tanto",a:"Sì, sono qui vicino a lui."},
+    {t:"mia madre è caduta dalle scale e non riesce ad alzarsi",a:"Sì, sono con lei, la porta è aperta."},
+    {t:"mio padre non riesce a parlare bene, ha la bocca storta",a:"Sì, è qui seduto sul divano."},
+    {t:"mio figlio è caduto dalla bici e si tiene il braccio, piange",in:0,a:"Sì, sono qui con lui sul marciapiede."},
+    {t:"un signore anziano è caduto per terra davanti a me e sanguina dalla fronte",in:0,a:"Sì, sono accanto a lui, è sveglio."},
+    {t:"una ragazza è svenuta alla fermata, adesso sta riaprendo gli occhi",in:0,a:"Sì, è qui per terra, ci sono io con lei."}]},
+  {n:'Trauma /malore/infortunio con persona non accessibile (abitazione o luogo chiuso)',sp:'trauma, malore, infortunio con persona non accessibile',p:['118','VVF'],pl:'u',in:1,vic:1,desc:[
+    {t:"la vicina anziana vive da sola, non risponde da ieri e si sente la televisione accesa",a:"No, la porta è chiusa e non apre nessuno."},
+    {t:"mia madre non risponde al telefono da stamattina, sono sotto casa sua e non mi apre",a:"No, non ho le chiavi e la porta è chiusa."},
+    {t:"dall'appartamento di sopra si sente qualcuno che si lamenta e chiede aiuto",a:"No, abbiamo bussato ma non riesce ad aprire."},
+    {t:"mio zio è caduto in casa, mi ha chiamato ma non riesce ad alzarsi per aprire la porta",a:"No, è dentro da solo e la porta è chiusa a chiave."},
+    {t:"il signore del secondo piano non si vede da giorni e c'è la posta accumulata",a:"No, la porta è chiusa, abbiamo provato a bussare."}]},
   {n:'Violenza sessuale',p:['118',LE],pl:'u',desc:["una ragazza è entrata nel mio negozio chiedendo aiuto, dice di aver subito violenza ed è sotto shock"]},
-  {n:'Incidente con feriti con persona non accessibile (incastrato)',sp:'incidente con feriti, persona non accessibile, incastrato',p:['118','VVF',LE],pl:'x',desc:["c'è stato un incidente, il conducente è rimasto incastrato tra le lamiere e non riesce a uscire"]},
-  {n:'Incidente con feriti con persona accessibile',sp:'incidente con feriti, persona accessibile',p:['118',LE],pl:'u',desc:["uno scooter si è scontrato con un'auto, il ragazzo è a terra e si lamenta","una macchina ha investito un pedone sulle strisce"]},
+  {n:'Incidente con feriti con persona non accessibile (incastrato)',sp:'incidente con feriti, persona non accessibile, incastrato',p:['118','VVF',LE],pls:['x','x','a','u'],desc:[
+    {t:"c'è stato un incidente, il conducente è rimasto incastrato tra le lamiere e non riesce a uscire",a:"No, è bloccato dentro, le portiere non si aprono."},
+    {t:"una macchina si è ribaltata, dentro c'è una signora che chiama aiuto",a:"No, la macchina è capovolta e non riusciamo a tirarla fuori."},
+    {t:"un'auto è finita contro un albero, il ragazzo alla guida ha le gambe bloccate",a:"No, ha le gambe schiacciate sotto il cruscotto."},
+    {t:"un furgone ha tamponato un camion, l'autista è rimasto chiuso nella cabina",a:"No, la cabina è accartocciata, non esce."}]},
+  {n:'Incidente con feriti con persona accessibile',sp:'incidente con feriti, persona accessibile',p:['118',LE],pls:['u','u','x','a'],desc:[
+    {t:"uno scooter si è scontrato con un'auto, il ragazzo è a terra e si lamenta",a:"Sì, è per terra vicino al motorino, siamo con lui."},
+    {t:"una macchina ha investito un pedone sulle strisce",a:"Sì, è sull'asfalto, è cosciente."},
+    {t:"due macchine si sono scontrate, una signora è uscita ma le fa male il collo",a:"Sì, è uscita da sola, è seduta sul marciapiede."},
+    {t:"un ciclista è stato urtato da un'auto ed è caduto, ha la gamba che sanguina",a:"Sì, è qui a bordo strada."}]},
   {n:'Tentato suicidio',p:['118',LE],pl:'u',in:1,desc:["mio fratello ha tentato di togliersi la vita, adesso è cosciente ma sta molto male"]},
   {n:'Evento violento con feriti',p:['118',LE],pl:'u',desc:["c'è stata una rissa davanti al locale, un ragazzo è ferito e perde sangue dalla testa"]}]},
  {c:'Altro',d:[{n:'Errore chiamata'}]},
@@ -596,24 +615,28 @@ function genScenario(mode,spell,cat,toneSel){
   const tone=toneSel&&TONES[toneSel]?toneSel:rnd(Object.keys(TONES));
   const pool=cat?GEN.filter(d=>d.g.id===cat):GEN;
   const det=rnd(pool.length?pool:GEN), grp=det.g;
+  const dSel=rnd(det.desc),dObj=typeof dSel==='string'?{t:dSel}:dSel;
+  const pl=dObj.pl||(det.pls?rnd(det.pls):det.pl), isIn=dObj.in!=null?dObj.in:det.in;
   const male=Math.random()<.5;
   const nome=rnd(male?NOMI_M:NOMI_F), cognome=rnd(COGNOMI);
   let via,comune,prov,civ;
-  if(det.pl==='u'||!PL[det.pl]){[comune,prov]=rnd(COMUNI);via=rnd(VIE);civ=String(ri(1,180))+(Math.random()<.12?rnd(['A','B','C']):'');}
-  else{[via,comune,prov]=rnd(PL[det.pl]);civ=(det.pl==='a'||det.pl==='x')?String(ri(1,60)):det.pl==='i'?'':String(ri(1,90));}
+  if(pl==='u'||!PL[pl]){[comune,prov]=rnd(COMUNI);via=rnd(VIE);civ=String(ri(1,180))+(Math.random()<.12?rnd(['A','B','C']):'');}
+  else{[via,comune,prov]=rnd(PL[pl]);civ=(pl==='a'||pl==='x')?String(ri(1,60)):pl==='i'?'':String(ri(1,90));}
   const tel=genTel(prov);
   let ref=null,poi=null;
-  if(det.in && det.pl==='u'){ // evento al chiuso: scala, piano, citofono sempre
-    ref={scala:Math.random()<.7?rnd('ABCDEF'.split('')):null,piano:ri(0,8),cit:Math.random()<.7?(Math.random()<.6?cognome:rnd(COGNOMI)):String(ri(1,60))};
+  if(isIn && pl==='u'){ // evento al chiuso: scala, piano, citofono sempre
+    // se chi chiama non è la persona soccorsa (vicino, parente fuori casa) sul citofono c'è il cognome della persona soccorsa
+    const other=()=>{let c;do{c=rnd(COGNOMI);}while(c===cognome);return c;};
+    ref={scala:Math.random()<.7?rnd('ABCDEF'.split('')):null,piano:ri(0,8),cit:(det.vic||dObj.vic)?other():(Math.random()<.7?(Math.random()<.6?cognome:other()):String(ri(1,60)))};
   }
   else if(Math.random()<.6)poi=rnd(POIS); // evento all'aperto: STRADA + a volte un punto di riferimento
-  const exp={tel,cognome,nome,via,civ,comune,prov,grp:grp.id,det:det.id,ref,poi,psap:det.p||[],pl:det.pl};
+  const exp={tel,cognome,nome,via,civ,comune,prov,grp:grp.id,det:det.id,ref,poi,psap:det.p||[],pl,acc:dObj.a||null};
   exp.refText=ref?((ref.scala?'SCALA '+ref.scala+' ':'')+pianoTxt(ref.piano)+' CIT. '+ref.cit.toUpperCase()):('STRADA'+(poi?' '+poi.t:''));
   const strSay=`in strada${poi?', '+poi.s:''}`;
   const civSp=civ.replace(/([0-9])([A-C])$/,'$1 $2');
-  const isRoad=det.pl==='a'||det.pl==='x';
+  const isRoad=pl==='a'||pl==='x';
   const T=tone;
-  const d0=cap(rnd(det.desc));
+  const d0=cap(dObj.t);
   let descP;
   if(T==='affannato'){const parts=d0.split(/,\s*/);descP=[];parts.forEach((x,i)=>{descP.push(x+(i<parts.length-1?'...':'.'));if(i<parts.length-1&&Math.random()<.7)descP.push(rnd(['Ah...','Ah... ah...','Mi scusi...']));});}
   else if(T==='panico'){const w=d0.split(' ');descP=[w.slice(0,Math.min(4,w.length)).join(' ')+'... '+d0+'!',rnd(['Oddio, oddio!','Fate presto, vi prego!','Non so cosa fare!'])];}
@@ -630,7 +653,7 @@ function genScenario(mode,spell,cat,toneSel){
   if(mode==='dict'){
     chunks.push(`Comune: ${comune}.`);
     if(isRoad)chunks.push(`Via: ${roadSp(via)}.`,`Chilometro: ${civ}.`);
-    else if(det.pl==='i')chunks.push(`Via: ${via}.`,'Civico: nessuno.');
+    else if(pl==='i')chunks.push(`Via: ${via}.`,'Civico: nessuno.');
     else chunks.push(`Via: ${via}.`,`Civico: ${civSp}.`);
     if(ref){
       chunks.push(ref.scala?`Scala: ${ref.scala}.`:'Scala: nessuna.');
@@ -657,9 +680,9 @@ function genScenario(mode,spell,cat,toneSel){
     const addrP=[];
     if(Math.random()<(T==='normale'?.25:.6))addrP.push(rnd(preAddr[T]));
     addrP.push(rnd([`Sono a ${comune}.`,`Siamo a ${comune}.`,`Il comune è ${comune}.`]));
-    if(det.pl==='a')addrP.push(`Sull'${roadSp(via)}.`,`Al chilometro ${civSay}.`);
-    else if(det.pl==='x')addrP.push(`Sulla ${roadSp(via)}.`,`All'altezza del chilometro ${civSay}.`);
-    else if(det.pl==='i')addrP.push(`In ${via}.`,'Non c\'è numero civico, sono su un sentiero.');
+    if(pl==='a')addrP.push(`Sull'${roadSp(via)}.`,`Al chilometro ${civSay}.`);
+    else if(pl==='x')addrP.push(`Sulla ${roadSp(via)}.`,`All'altezza del chilometro ${civSay}.`);
+    else if(pl==='i')addrP.push(`In ${via}.`,'Non c\'è numero civico, sono su un sentiero.');
     else addrP.push(rnd([`In ${via}.`,`La via è ${via}.`]),rnd([`Numero ${civSay}.`,`Al civico ${civSay}.`]));
     if(fix)addrP.push(fix);
     if(T==='affannato'&&Math.random()<.5)addrP.push('Ah... ah...');
@@ -909,8 +932,8 @@ function scheduleNext(){clearTimeout(S.nextT);if(settings.turno)S.nextT=setTimeo
 
 /* ---------------- INTERATTIVO: domande e risposte ---------------- */
 const QORDER=['desc','comune','via','civico','scala','piano','citofono','nome'];
-const QLAB={fine:'Allerto ente (fine)',rif:'Punto di riferimento?',desc:'Di cosa ha bisogno?',comune:'In che comune?',via:'In che via?',civico:'A che civico?',scala:'Scala?',piano:'Piano?',citofono:'Citofono / interno?',nome:'Nome e cognome?',spell:'Come si scrive?',ripeti:'Può ripetere?',tel:'Numero di telefono?',prov:'Provincia?'};
-const QKEY={Digit1:'desc',Digit2:'comune',Digit3:'via',Digit4:'civico',Digit5:'scala',Digit6:'piano',Digit7:'citofono',Digit8:'nome',Digit9:'spell',Digit0:'ripeti',KeyT:'tel',KeyR:'rif',KeyE:'fine'};
+const QLAB={acc:'La persona è raggiungibile?',fine:'Allerto ente (fine)',rif:'Punto di riferimento?',desc:'Di cosa ha bisogno?',comune:'In che comune?',via:'In che via?',civico:'A che civico?',scala:'Scala?',piano:'Piano?',citofono:'Citofono / interno?',nome:'Nome e cognome?',spell:'Come si scrive?',ripeti:'Può ripetere?',tel:'Numero di telefono?',prov:'Provincia?'};
+const QKEY={Digit1:'desc',Digit2:'comune',Digit3:'via',Digit4:'civico',Digit5:'scala',Digit6:'piano',Digit7:'citofono',Digit8:'nome',Digit9:'spell',Digit0:'ripeti',KeyT:'tel',KeyR:'rif',KeyE:'fine',KeyA:'acc'};
 const QRX=[
  ['ripeti',/ripet|non ho capito|come ha detto|non ho sentito|non la sento/],
  ['spell',/come si scrive|lettera per lettera|fa lo spelling|me lo scandisc|compit/],
@@ -921,6 +944,7 @@ const QRX=[
  ['scala',/\bscala\b|palazzina|isolato|lotto/],
  ['piano',/\bpiano\b/],
  ['citofono',/citofono|interno|campanello/],
+ ['acc',/raggiung|accessibil|porta e aperta|porta aperta|riusciamo a entrare|si puo entrare|possiamo entrare|e con lei|e con lui|e con loro|sta con lui|sta con lei|e li con|e vicino a lei|e insieme a|riesce a uscire|e incastrat|e bloccat|ha le chiavi/],
  ['rif',/riferimento|cosa c.e vicino|vicino a cosa|davanti a cosa|cosa vede|si trova in casa|in casa o in strada|in strada/],
  ['nome',/\bnome\b|cognome|chi parla|come si chiama|con chi parlo/],
  ['desc',/emergenza|di cosa ha bisogno|cosa (e |e' |e)?successo|cosa succede|che succede|mi dica|cosa le serve|di cosa ha/]
@@ -959,6 +983,9 @@ function answerFor(k){
     case 'civico':
       if(e.pl==='i')return ['Non c\'è un numero civico, sono in montagna.'];
       {const a=[sc.isRoad?`Al chilometro ${civText}.`:rnd([`Numero ${civText}.`,`Al civico ${civText}.`,`${cap(civText)}.`])];if(sc.fix){a.push(sc.fix);sc.fix=null;sc.civSay=sc.civSp;}return a;}
+    case 'acc':
+      if(e.acc)return [e.acc];
+      return [rnd(['Non c\'è nessun ferito, è per quello che le ho detto.','Non ci sono persone da soccorrere, è solo questo problema.'])];
     case 'rif':
       if(!ref)return [`Sono in strada${e.poi?', '+e.poi.s:''}.`];
       return [`${ref.scala?'Scala '+ref.scala+', ':''}${ref.piano===0?'piano terra':pianoSp(ref.piano)}, citofono ${ref.cit}.`];
@@ -1014,7 +1041,7 @@ function ask(intents,src,heard){
   say(out);updBtns();
 }
 function renderQpanel(){
-  $('#qpanel').innerHTML=QORDER.concat(['rif','spell','tel','ripeti','fine']).map(k=>{
+  $('#qpanel').innerHTML=QORDER.concat(['acc','rif','spell','tel','ripeti','fine']).map(k=>{
     const code=Object.keys(QKEY).find(c=>QKEY[c]===k);const key=code?code.replace('Digit','').replace('Key',''):'';
     return `<button type="button" class="qb" data-q="${k}"><span>${QLAB[k]}</span><kbd>Alt+${key}</kbd></button>`;}).join('');
   $$('#qpanel .qb').forEach(b=>b.onclick=()=>b.dataset.q==='fine'?fineChiamata('tasto','Allerto ente.'):ask([b.dataset.q],'tasto'));
